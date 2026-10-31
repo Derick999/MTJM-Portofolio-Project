@@ -1,0 +1,40 @@
+/* Gaya web asli (token warna, font, tombol) + Tailwind, dipakai oleh komponen web yang ditanam di video. */
+@import "../../src/app/globals.css";
+/* Tailwind harus memindai kelas yang dipakai komponen web dan komponen video */
+@source "../../src";
+@source "./";
+
+/* Font: web memakai next/font; di video Poppins dimuat lewat @remotion/google-fonts (theme.ts) */
+:root {
+  --font-poppins: "Poppins", system-ui, sans-serif;
+}
+
+/* Adegan 1-4 memakai gaya inline yang dirancang tanpa reset Tailwind: pertahankan perilaku box-sizing lamanya */
+.legacy-box,
+.legacy-box * {
+  box-sizing: content-box;
+}
+
+/* Isi halaman web (adegan 5-8) memakai border-box seperti di web asli */
+.web-box,
+.web-box * {
+  box-sizing: border-box;
+}
+
+/* leaflet.css (dimuat belakangan) memberi latar abu-abu; web memakai biru laut dari token */
+.web-box .leaflet-container {
+  background: #dbe9f6;
+}
+
+/* Menu aktif header web di dalam video: header web menghitungnya dari posisi scroll jendela browser sungguhan (window),
+   sedangkan di video halaman digeser lewat transform. Karena itu status aktif ditentukan dari frame (data-nav). */
+.web-box[data-nav] header nav a {
+  background: transparent !important;
+  font-weight: 500 !important;
+}
+.web-box[data-nav="beranda"] header nav a:nth-child(1),
+.web-box[data-nav="proyek"] header nav a:nth-child(2),
+.web-box[data-nav="peta"] header nav a:nth-child(3) {
+  background: var(--color-nav-active) !important;
+  font-weight: 700 !important;
+}

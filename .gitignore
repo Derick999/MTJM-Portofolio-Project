@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# video promo (Remotion): hasil render & dependensi
+/video/out
+/video/node_modules

@@ -19,7 +19,7 @@ export const SITE = {
     { href: "/#peta", label: "Peta" },
     { href: "/#hubungi", label: "Hubungi" },
   ],
-  mainSiteButton: "Website Utama",
+  mainSiteButton: "Main Website",
 
   hero: {
     eyebrow: "Your Technical Partner",

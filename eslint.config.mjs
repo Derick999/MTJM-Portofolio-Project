@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Proyek Remotion terpisah dengan package.json sendiri.
+    "video/**",
   ]),
 ]);
 
