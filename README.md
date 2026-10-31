@@ -1,36 +1,103 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Portofolio Proyek MTJM
 
-## Getting Started
+Website portofolio proyek PT Multi Tehnik Jaya Mandiri. Beranda berbentuk dashboard (hero, angka statistik, peta Indonesia interaktif, proyek per kategori dengan 3D). Isi website mengikuti data di database; tampilan tetap. Admin menambah/mengubah proyek lewat `/admin`, dan hasilnya langsung tampil tanpa deploy ulang.
 
-First, run the development server:
+Stack: Next.js (App Router) + TypeScript + Tailwind, React Three Fiber (3D), Leaflet + OpenStreetMap (peta, tanpa API key), Supabase (database, foto, login), Vercel (hosting).
+
+## Menjalankan di komputer
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Buka http://localhost:3000. Tanpa Supabase, situs memakai **data contoh** (`src/data/seed.ts`) dan halaman admin menampilkan pesan "Supabase belum disambungkan".
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 1. Setup Supabase
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Buat project di https://supabase.com (gratis cukup).
+2. Buka **SQL Editor**, jalankan berurutan:
+   1. isi `supabase/migrations/001_schema.sql` (tabel, kebijakan RLS, bucket foto `project-photos`)
+   2. isi `supabase/migrations/002_site_stats.sql` (tabel angka statistik beranda + nilai awal 165 / 50 / 20)
+   3. isi `supabase/seed.sql` (data awal, opsional)
+3. Ambil **Project URL** dan **anon public key** di *Project Settings > API*.
 
-## Learn More
+Keamanan: baca publik hanya untuk proyek `published` dan tabel `site_stats`; tulis (proyek, foto, upload, angka statistik) hanya untuk user yang ada di tabel `admins`. Dijaga oleh RLS di database, bukan sekadar disembunyikan di tampilan.
 
-To learn more about Next.js, take a look at the following resources:
+## 2. Environment variable
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Salin `.env.example` menjadi `.env.local`:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Variabel | Fungsi |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | URL project Supabase |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | anon key (aman dipublikasikan, dibatasi RLS) |
+| `NEXT_PUBLIC_SITE_URL` | alamat situs final (untuk Open Graph) |
+| `NEXT_PUBLIC_COMPANY_URL` / `_ADDRESS` / `_EMAIL` / `_PHONE` | isi footer |
 
-## Deploy on Vercel
+Jangan pernah memakai `service_role` key di project ini.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 3. Membuat akun admin
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Supabase > **Authentication > Users > Add user**: isi email + password, centang *Auto Confirm User*.
+2. Di **SQL Editor**, jadikan user itu admin (ganti emailnya):
+
+```sql
+insert into public.admins (user_id)
+select id from auth.users where email = 'admin@contoh.com';
+```
+
+3. Buka `/admin` dan masuk. Akun yang tidak ada di tabel `admins` ditolak.
+
+Untuk mencabut akses: `delete from public.admins where user_id = '...';`
+
+## 4. Deploy ke Vercel
+
+1. Push project ke GitHub, lalu **Add New > Project** di Vercel dan pilih repo-nya.
+2. Isi environment variable di atas (Settings > Environment Variables).
+3. Deploy. Setiap perubahan data lewat admin langsung terlihat tanpa deploy ulang.
+4. Setelah punya domain, isi `NEXT_PUBLIC_SITE_URL` lalu redeploy sekali.
+
+## Panduan singkat untuk admin MTJM
+
+**Masuk:** buka `alamat-situs/admin`, isi email dan password.
+
+**Tambah proyek:** klik **+ Tambah proyek**, isi form dari atas ke bawah:
+1. Pilih *Kategori* dan *Tahun*.
+2. Isi *Nama proyek* dan *Klien*.
+3. Pilih *Provinsi*, lalu *Kota/Kabupaten*. Titik di peta terisi otomatis. Kalau ingin lebih tepat, geser pin di mini-peta.
+4. Isi *Keterangan* dan *Bagian pekerjaan*.
+5. Klik **+ Pilih foto** (1 sampai 5 foto). Foto pertama jadi sampul; pakai tombol panah untuk mengubah urutan. Foto otomatis dikecilkan, jadi tidak perlu diedit dulu. Foto asli maksimal 10 MB.
+6. Klik **Simpan proyek**. Tunggu sampai pesan sukses muncul.
+
+**Angka statistik beranda:** di bagian atas `/admin` ada kotak *Angka Statistik* (Proyek, Klien, Lokasi di Indonesia). Ubah angkanya lalu klik **Simpan angka**. Angka ini diisi manual, tidak dihitung dari daftar proyek, karena proyek yang diunggah hanya sebagian dari seluruh pekerjaan MTJM.
+
+**Edit / Hapus:** di daftar proyek klik **Edit** atau **Hapus** (ada konfirmasi sebelum benar-benar dihapus).
+
+**Sembunyikan sementara:** hilangkan centang *Tampilkan proyek ini di website*. Proyek berstatus Draft hanya terlihat oleh admin.
+
+## Struktur folder
+
+```
+src/app            halaman: / (dashboard), /admin, /admin/proyek/[id]  (/peta dialihkan ke /#peta)
+src/components     UI; models/ = model 3D per kategori (prims.tsx = bahan dasar)
+src/lib            kategori, filter, data provinsi->kota (indonesia.ts), Supabase, kompresi foto
+src/config/site.ts  semua teks & data perusahaan (menu, hero, CTA, kontak, angka awal)
+src/components/home  Dashboard (peta + kategori) dan CTA
+src/data/seed.ts   data contoh (sumber untuk supabase/seed.sql)
+supabase/          migrasi SQL + seed
+```
+
+## Menyesuaikan
+
+- **Warna & font:** token di `src/app/globals.css` (`@theme`). Tema biru-putih mengikuti logo (biru #1887cd, cyan #1dc7f4) dan navy #14144a; font Poppins dimuat di `src/app/layout.tsx`. Warna kategori ada di `src/lib/categories.ts`.
+- **Teks & data perusahaan:** `src/config/site.ts` (menu, hero, CTA, footer, alamat/telepon/email). Alamat/telepon/email juga bisa ditimpa lewat environment variable.
+- **Company Profile:** taruh file PDF di `public/company-profile.pdf` maka tautan "Unduh Company Profile" muncul otomatis di bagian CTA (dicek saat build, jadi deploy ulang setelah menambah file). Nama file diatur di `site.ts`.
+- **Logo:** `public/mtjm-logo.jpg` (header, footer). Favicon dibuat dari `src/app/icon.png` dan `apple-icon.png`; gambar preview link `public/og.png` (1200x630).
+- **Batas provinsi di peta:** `public/geo/indonesia-provinces.json`, dibuat ulang dengan `node scripts/build-geo.mjs <file.geojson>`. Papua Selatan/Tengah/Pegunungan memakai batas Papua, dan Papua Barat Daya memakai batas Papua Barat (sumber data masih 34 provinsi).
+- **Kota baru:** tambah baris di `src/lib/indonesia.ts` (format `[nama, lat, lng]`).
+- **Data awal:** ubah `src/data/seed.ts`, lalu `npm run seed:sql` untuk membuat ulang `supabase/seed.sql`.
+
+## Catatan data awal
+
+Seed berisi proyek yang disebut jelas di ringkasan (status *published*), serta empat proyek yang datanya tidak konsisten di dokumen sumber (Dumai, Muthu Gading Solo, Lirik, Teluk Lamong) dengan status *draft* dan catatan "perlu dicek". Klien dan foto belum diisi; lengkapi lewat admin. Koordinat memakai titik tengah kota.
