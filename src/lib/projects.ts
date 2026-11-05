@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { seedProjects } from "@/data/seed";
+import { seedCategoryProjects } from "@/data/seed-categories";
 import { getSupabase } from "./supabase";
 import type { Project } from "./types";
 
@@ -20,7 +21,7 @@ function fromRow(r: Row): Project {
 /** Ambil proyek. Publik hanya melihat yang published (dijaga RLS); admin melihat semuanya. */
 export async function fetchProjects(): Promise<Project[]> {
   const sb = getSupabase();
-  if (!sb) return seedProjects();
+  if (!sb) return [...seedProjects(), ...seedCategoryProjects()];
   const { data, error } = await sb
     .from("projects")
     .select("*, project_photos(url, sort_order)")

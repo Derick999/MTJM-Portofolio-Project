@@ -1,3 +1,4 @@
+import { SITE } from "@/config/site";
 import type { Project } from "./types";
 
 /** Kalimat catatan internal (data seed) yang tidak boleh tampil ke pengunjung. */
@@ -17,3 +18,6 @@ export const isPlaceholderPhoto = (url: string) => url.startsWith("/placeholder/
 
 /** Foto asli proyek (tanpa placeholder). */
 export const realPhotos = (p: Pick<Project, "photos">): string[] => p.photos.filter((u) => !isPlaceholderPhoto(u));
+
+/** Nama klien untuk pengunjung: kosong bila SITE.showClientNames dimatikan (menunggu izin MTJM). */
+export const publicClient = (p: Pick<Project, "client">): string => (SITE.showClientNames ? p.client : "");

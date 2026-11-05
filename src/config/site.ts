@@ -21,6 +21,9 @@ export const SITE = {
   ],
   mainSiteButton: "Main Website",
 
+  /** Tampilkan nama klien ke publik? Matikan sampai MTJM memberi izin; nama klien tetap tersimpan dan terlihat di admin. */
+  showClientNames: false,
+
   hero: {
     eyebrow: "Your Technical Partner",
     title: "Portofolio Proyek MTJM",

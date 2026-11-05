@@ -1,6 +1,6 @@
 import { CATEGORY_MAP } from "@/lib/categories";
 import type { Project } from "@/lib/types";
-import { realPhotos } from "@/lib/display";
+import { publicClient, realPhotos } from "@/lib/display";
 import { CategoryIcon } from "./CategoryIcon";
 import { ProjectPhoto } from "./ProjectPhoto";
 
@@ -67,8 +67,8 @@ export function ProjectList({ projects, onSelect, error, showCategory = false, e
                   {CATEGORY_MAP[p.category].label}
                 </span>
               )}
-              {(p.client || !showCategory) && (
-                <span className="block truncate text-sm text-muted">{p.client || CATEGORY_MAP[p.category].label}</span>
+              {(publicClient(p) || !showCategory) && (
+                <span className="block truncate text-sm text-muted">{publicClient(p) || CATEGORY_MAP[p.category].label}</span>
               )}
               <span className="mt-1 flex flex-wrap gap-x-3 text-xs text-muted">
                 <span>{p.year}</span>

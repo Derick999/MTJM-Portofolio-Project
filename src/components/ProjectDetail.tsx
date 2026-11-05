@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { CATEGORY_MAP } from "@/lib/categories";
-import { publicText, realPhotos } from "@/lib/display";
+import { publicClient, publicText, realPhotos } from "@/lib/display";
 import { SITE } from "@/config/site";
 import type { Project } from "@/lib/types";
 import { CategoryIcon } from "./CategoryIcon";
@@ -59,7 +59,7 @@ export function ProjectDetail({ project, onClose }: { project: Project; onClose:
   }, []);
 
   const rows: [string, string][] = [
-    ["Klien", project.client],
+    ["Klien", publicClient(project)],
     ["Tahun", String(project.year)],
     ["Lokasi", `${project.city}, ${project.province}`],
     ["Kategori", cat.label],
