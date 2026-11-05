@@ -4,7 +4,7 @@ import { ThreeCanvas } from "@remotion/three";
 import { ContactShadows, Grid } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
 import { Vector3 } from "three";
-import { CATEGORY_MAP, type CategoryId } from "@/lib/categories";
+import { CATEGORY_MAP, DEFAULT_VIEW, type CategoryId, type ModelView } from "@/lib/categories";
 import { PerfContext } from "@/components/models/perf";
 import { BoilerModel } from "@/components/models/BoilerModel";
 import { GensetModel } from "@/components/models/GensetModel";
@@ -27,10 +27,10 @@ const MODELS: Partial<Record<CategoryId, () => React.JSX.Element>> = {
 };
 
 
-const Rig = ({ target, angleDeg, aspect }: { target: [number, number, number]; angleDeg: number; aspect: number }) => {
+const Rig = ({ target, angleDeg, aspect, view }: { target: [number, number, number]; angleDeg: number; aspect: number; view: ModelView }) => {
   const { camera } = useThree();
-  const d = 15 * Math.max(1, 0.95 / aspect); // sama dengan CameraRig di web
-  const base = new Vector3(9, 5.5, 10.5).normalize().multiplyScalar(d);
+  const d = view.distance * Math.max(1, 0.95 / aspect); // sama dengan CameraRig di web
+  const base = new Vector3(...view.dir).normalize().multiplyScalar(d);
   const a = (angleDeg * Math.PI) / 180;
   const x = base.x * Math.cos(a) + base.z * Math.sin(a);
   const z = -base.x * Math.sin(a) + base.z * Math.cos(a);
@@ -53,13 +53,14 @@ export const VideoModel = ({ category, angleDeg, opacity = 1 }: { category: Cate
   }, [size, handle]);
 
   const Model = MODELS[category] ?? PlaceholderModel;
+  const view = CATEGORY_MAP[category].view ?? DEFAULT_VIEW;
   return (
     <div className="flex h-full w-full flex-col overflow-hidden rounded-lg border border-line bg-surface">
       <div ref={box} className="viewer-bg relative min-h-0 flex-1" role="img" aria-label={`Ilustrasi 3D ${category}`}>
         {size && (
           <div style={{ position: "absolute", inset: 0, opacity }}>
-            <ThreeCanvas width={size.w} height={size.h} camera={{ fov: 36, near: 0.1, far: 100, position: [9, 5.5, 10.5] }} gl={{ antialias: true }}>
-              <Rig target={CATEGORY_MAP[category].target} angleDeg={angleDeg} aspect={size.w / size.h} />
+            <ThreeCanvas width={size.w} height={size.h} camera={{ fov: 36, near: 0.1, far: 200, position: [9, 5.5, 10.5] }} gl={{ antialias: true }}>
+              <Rig target={CATEGORY_MAP[category].target} angleDeg={angleDeg} aspect={size.w / size.h} view={view} />
               <hemisphereLight args={["#ffffff", "#8aa3bd", 1.1]} />
               <directionalLight position={[6, 10, 5]} intensity={1.9} />
               <directionalLight position={[-6, 4, -4]} intensity={0.5} color="#cfe6ff" />
@@ -75,11 +76,11 @@ export const VideoModel = ({ category, angleDeg, opacity = 1 }: { category: Cate
                 sectionSize={2.5}
                 sectionThickness={1}
                 sectionColor="#1887cd"
-                fadeDistance={22}
+                fadeDistance={view.groundScale * 1.2}
                 fadeStrength={1.5}
                 infiniteGrid
               />
-              <ContactShadows position={[0, 0.01, 0]} scale={18} blur={2.6} opacity={0.35} far={6} frames={1} resolution={512} />
+              <ContactShadows position={[0, 0.01, 0]} scale={view.groundScale} blur={2.6} opacity={0.35} far={6} frames={1} resolution={512} />
             </ThreeCanvas>
           </div>
         )}

@@ -59,9 +59,22 @@ export interface CategoryInfo {
   blurb: string;
   /** Titik bidik kamera viewer 3D (tengah objek). */
   target: [number, number, number];
+  /** Pandangan kamera viewer 3D; model lebar (mis. Piping) memakai jarak lebih jauh dan sudut lebih tinggi. */
+  view?: ModelView;
   /** Komponen model 3D, dimuat malas per kategori. */
   model: () => Promise<ComponentType>;
 }
+
+export interface ModelView {
+  distance: number;
+  dir: [number, number, number];
+  minDistance: number;
+  maxDistance: number;
+  /** Lebar area bayangan dan grid (satuan model). */
+  groundScale: number;
+}
+
+export const DEFAULT_VIEW: ModelView = { distance: 15, dir: [9, 5.5, 10.5], minDistance: 6, maxDistance: 36, groundScale: 18 };
 
 type Def = Omit<CategoryInfo, "color">;
 
@@ -99,7 +112,8 @@ const DEFS: Def[] = [
     short: "Piping",
     family: "mekanikal",
     blurb: "Pipa karbon dan stainless, HDPE, cast iron, dan plumbing; sistem pompa; serta HVAC.",
-    target: [0, 1.6, 0],
+    target: [0, 1.8, 0],
+    view: { distance: 44, dir: [8, 9, 11], minDistance: 10, maxDistance: 80, groundScale: 40 },
     model: () => import("@/components/models/PipingModel").then((m) => m.PipingModel),
   },
   {
@@ -127,7 +141,8 @@ const DEFS: Def[] = [
     family: "pembangkit",
     blurb: "Pembangkit listrik secara keseluruhan (EPC): gas engine, generator set, dan coal-fired power plant.",
     target: [0, 1.4, 0],
-    model: () => import("@/components/models/PlaceholderModel").then((m) => m.PlaceholderModel),
+    view: { distance: 26, dir: [9, 6.5, 10.5], minDistance: 8, maxDistance: 60, groundScale: 30 },
+    model: () => import("@/components/models/PowerPlantModel").then((m) => m.PowerPlantModel),
   },
   {
     id: "electrical-work",
@@ -136,7 +151,8 @@ const DEFS: Def[] = [
     family: "elektrikal",
     blurb: "Jaringan transmisi dan distribusi, elektrikal gedung dan pabrik, instrumen dan kontrol, serta panel MV/LV.",
     target: [0, 1.4, 0],
-    model: () => import("@/components/models/PlaceholderModel").then((m) => m.PlaceholderModel),
+    view: { distance: 20, dir: [9, 6, 10.5], minDistance: 8, maxDistance: 45, groundScale: 22 },
+    model: () => import("@/components/models/ElectricalModel").then((m) => m.ElectricalModel),
   },
   {
     id: "civil-steel",
@@ -154,7 +170,8 @@ const DEFS: Def[] = [
     family: "elektrikal",
     blurb: "Sistem pemadam kebakaran, hidran, dan alarm.",
     target: [0, 1.4, 0],
-    model: () => import("@/components/models/PlaceholderModel").then((m) => m.PlaceholderModel),
+    view: { distance: 25, dir: [9, 6, 10.5], minDistance: 8, maxDistance: 50, groundScale: 26 },
+    model: () => import("@/components/models/FireProtectionModel").then((m) => m.FireProtectionModel),
   },
   {
     id: "storage-tanks",
