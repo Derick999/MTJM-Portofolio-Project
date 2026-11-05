@@ -161,7 +161,8 @@ const DEFS: Def[] = [
     family: "sipil",
     blurb: "Struktur baja, gedung, interior, serta pekerjaan sipil dan arsitektur.",
     target: [0, 1.4, 0],
-    model: () => import("@/components/models/PlaceholderModel").then((m) => m.PlaceholderModel),
+    view: { distance: 20, dir: [9, 6, 10.5], minDistance: 8, maxDistance: 45, groundScale: 22 },
+    model: () => import("@/components/models/CivilSteelModel").then((m) => m.CivilSteelModel),
   },
   {
     id: "fire-protection",
@@ -180,7 +181,8 @@ const DEFS: Def[] = [
     family: "utilitas",
     blurb: "Tangki minyak dan air, tangki kimia, filter tank, dan pressure tank.",
     target: [0, 1.4, 0],
-    model: () => import("@/components/models/PlaceholderModel").then((m) => m.PlaceholderModel),
+    view: { distance: 23, dir: [9, 6.5, 10.5], minDistance: 8, maxDistance: 55, groundScale: 30 },
+    model: () => import("@/components/models/StorageTanksModel").then((m) => m.StorageTanksModel),
   },
   {
     id: "industrial-maintenance",
@@ -189,7 +191,8 @@ const DEFS: Def[] = [
     family: "mekanikal",
     blurb: "Annual maintenance berkala dan instalasi mesin custom.",
     target: [0, 1.4, 0],
-    model: () => import("@/components/models/PlaceholderModel").then((m) => m.PlaceholderModel),
+    view: { distance: 22, dir: [9, 6, 10.5], minDistance: 8, maxDistance: 50, groundScale: 26 },
+    model: () => import("@/components/models/MaintenanceModel").then((m) => m.MaintenanceModel),
   },
   {
     id: "building-factory",
@@ -198,7 +201,8 @@ const DEFS: Def[] = [
     family: "sipil",
     blurb: "Pembangunan dan renovasi pabrik dan fasilitas industri.",
     target: [0, 1.4, 0],
-    model: () => import("@/components/models/PlaceholderModel").then((m) => m.PlaceholderModel),
+    view: { distance: 31, dir: [9, 6.5, 10.5], minDistance: 8, maxDistance: 65, groundScale: 34 },
+    model: () => import("@/components/models/BuildingFactoryModel").then((m) => m.BuildingFactoryModel),
   },
 ];
 
