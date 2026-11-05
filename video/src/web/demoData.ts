@@ -7,7 +7,7 @@ import type { Project } from "@/lib/types";
 import { CONFIG } from "../config";
 import manifest from "../photosManifest.json";
 
-const NAME_PREFIX: Record<CategoryId, string> = {
+const NAME_PREFIX: Partial<Record<CategoryId, string>> = {
   boiler: "Boiler",
   genset: "PLTMG",
   water: "Water Treatment",
@@ -31,7 +31,7 @@ const PLACEHOLDER: Project[] = CONFIG.extraDots.map((d, i) => ({
   id: `contoh-${i + 1}`,
   slug: `contoh-${d.name.toLowerCase().replace(/\s+/g, "-")}`,
   category: d.category as CategoryId,
-  name: `${NAME_PREFIX[d.category as CategoryId]} ${d.name}`,
+  name: `${NAME_PREFIX[d.category as CategoryId] ?? CATEGORY_MAP[d.category as CategoryId].short} ${d.name}`,
   client: "",
   year: d.year,
   province: d.province,

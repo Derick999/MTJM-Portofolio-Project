@@ -4,7 +4,7 @@ import { ThreeCanvas } from "@remotion/three";
 import { ContactShadows, Grid } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
 import { Vector3 } from "three";
-import type { CategoryId } from "@/lib/categories";
+import { CATEGORY_MAP, type CategoryId } from "@/lib/categories";
 import { PerfContext } from "@/components/models/perf";
 import { BoilerModel } from "@/components/models/BoilerModel";
 import { GensetModel } from "@/components/models/GensetModel";
@@ -12,11 +12,12 @@ import { WaterModel } from "@/components/models/WaterModel";
 import { PipingModel } from "@/components/models/PipingModel";
 import { RelocationModel } from "@/components/models/RelocationModel";
 import { ContainerModel } from "@/components/models/ContainerModel";
+import { PlaceholderModel } from "@/components/models/PlaceholderModel";
 
 // Viewer 3D untuk video: model, pencahayaan, grid, dan bayangan sama dengan src/components/models/Scene.tsx di web.
 // Bedanya: kamera berputar mengikuti frame (di web: OrbitControls autoRotate berbasis waktu nyata), dan mode "weak"
 // dipakai agar uap/kipas statis (deterministik per frame).
-const MODELS: Record<CategoryId, () => React.JSX.Element> = {
+const MODELS: Partial<Record<CategoryId, () => React.JSX.Element>> = {
   boiler: BoilerModel,
   genset: GensetModel,
   water: WaterModel,
@@ -25,15 +26,6 @@ const MODELS: Record<CategoryId, () => React.JSX.Element> = {
   container: ContainerModel,
 };
 
-// Titik pandang per model (sama dengan Scene.tsx)
-const TARGET: Record<CategoryId, [number, number, number]> = {
-  boiler: [0, 2.4, 0],
-  genset: [0, 1.4, 0],
-  water: [0, 1.7, 0],
-  piping: [0, 1.6, 0],
-  relokasi: [0, 1.4, 0],
-  container: [0, 1.2, 0],
-};
 
 const Rig = ({ target, angleDeg, aspect }: { target: [number, number, number]; angleDeg: number; aspect: number }) => {
   const { camera } = useThree();
@@ -60,14 +52,14 @@ export const VideoModel = ({ category, angleDeg, opacity = 1 }: { category: Cate
     }
   }, [size, handle]);
 
-  const Model = MODELS[category];
+  const Model = MODELS[category] ?? PlaceholderModel;
   return (
     <div className="flex h-full w-full flex-col overflow-hidden rounded-lg border border-line bg-surface">
       <div ref={box} className="viewer-bg relative min-h-0 flex-1" role="img" aria-label={`Ilustrasi 3D ${category}`}>
         {size && (
           <div style={{ position: "absolute", inset: 0, opacity }}>
             <ThreeCanvas width={size.w} height={size.h} camera={{ fov: 36, near: 0.1, far: 100, position: [9, 5.5, 10.5] }} gl={{ antialias: true }}>
-              <Rig target={TARGET[category]} angleDeg={angleDeg} aspect={size.w / size.h} />
+              <Rig target={CATEGORY_MAP[category].target} angleDeg={angleDeg} aspect={size.w / size.h} />
               <hemisphereLight args={["#ffffff", "#8aa3bd", 1.1]} />
               <directionalLight position={[6, 10, 5]} intensity={1.9} />
               <directionalLight position={[-6, 4, -4]} intensity={0.5} color="#cfe6ff" />

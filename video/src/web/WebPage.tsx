@@ -1,6 +1,6 @@
 import { forwardRef } from "react";
 import { Easing } from "remotion";
-import { CATEGORIES } from "@/lib/categories";
+import { CATEGORIES, visibleCategories } from "@/lib/categories";
 import { sortProjects } from "@/lib/filters";
 import { hasActiveFilters } from "@/lib/filters";
 import { DashboardView } from "@/components/home/DashboardView";
@@ -8,7 +8,7 @@ import { ProjectList } from "@/components/ProjectList";
 import { SITE } from "@/config/site";
 import { sec } from "../config";
 import { DEMO_PROJECTS } from "./demoData";
-import { countsFor, filteredFor, panelFor, type Metrics, type Rect, type Session } from "./session";
+import { TOTALS, countsFor, filteredFor, panelFor, type Metrics, type Rect, type Session } from "./session";
 import type { MapView2 } from "./mapMath";
 import { VideoMap } from "./VideoMap";
 import { VideoModel } from "./VideoModel";
@@ -28,7 +28,7 @@ export function collectMetrics(root: HTMLElement): Metrics {
   const selects = root.querySelectorAll('form[aria-label="Filter proyek"] select'); // Kategori, Provinsi, Kota, Tahun
   const tabEls = root.querySelectorAll('[role="tab"]'); // Semua + kategori
   const tabs: Record<string, Rect> = {};
-  ["semua", ...CATEGORIES.map((c) => c.id)].forEach((id, i) => (tabs[id] = rect(tabEls[i])));
+  ["semua", ...visibleCategories(TOTALS).map((c) => c.id)].forEach((id, i) => (tabs[id] = rect(tabEls[i])));
   return {
     map: rect(root.querySelector('[data-metric="map"]')),
     panel: rect(root.querySelector('[data-metric="panel"]')),
@@ -110,6 +110,7 @@ export const WebPage = forwardRef<HTMLDivElement, Props>(function WebPage({ sess
         onSort={noop}
         filteredCount={filtered.length}
         countsByCategory={countsFor(f)}
+        totalsByCategory={TOTALS}
         modelCategory={modelCategory}
         panel={{ title: f.city || f.province || "Semua lokasi", projects: nextList, hasLocation: Boolean(f.province || f.city), onShowAll: noop }}
         sorted={sortProjects(filtered, "tahun-baru")}

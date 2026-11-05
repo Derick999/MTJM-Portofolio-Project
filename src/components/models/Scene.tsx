@@ -1,36 +1,16 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, lazy, useEffect, useState, type ComponentType, type LazyExoticComponent } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
 import { Vector3 } from "three";
 import { ContactShadows, Grid, OrbitControls } from "@react-three/drei";
-import type { CategoryId } from "@/lib/categories";
+import { CATEGORIES, CATEGORY_MAP, type CategoryId } from "@/config/categories";
 import { PerfContext } from "./perf";
-import { BoilerModel } from "./BoilerModel";
-import { GensetModel } from "./GensetModel";
-import { WaterModel } from "./WaterModel";
-import { PipingModel } from "./PipingModel";
-import { RelocationModel } from "./RelocationModel";
-import { ContainerModel } from "./ContainerModel";
 
-const MODELS: Record<CategoryId, () => React.JSX.Element> = {
-  boiler: BoilerModel,
-  genset: GensetModel,
-  water: WaterModel,
-  piping: PipingModel,
-  relokasi: RelocationModel,
-  container: ContainerModel,
-};
-
-// Titik pandang per model (target kamera di tengah objek).
-const TARGET: Record<CategoryId, [number, number, number]> = {
-  boiler: [0, 2.4, 0],
-  genset: [0, 1.4, 0],
-  water: [0, 1.7, 0],
-  piping: [0, 1.6, 0],
-  relokasi: [0, 1.4, 0],
-  container: [0, 1.2, 0],
-};
+// Komponen model dimuat malas per kategori (dibuat sekali di tingkat modul, bukan saat render).
+const MODELS = Object.fromEntries(
+  CATEGORIES.map((c) => [c.id, lazy(() => c.model().then((C) => ({ default: C })))]),
+) as Record<CategoryId, LazyExoticComponent<ComponentType>>;
 
 /** Perangkat lemah: CPU sedikit, RAM kecil, atau pengguna meminta gerak berkurang. */
 function detectWeak() {
@@ -56,9 +36,10 @@ function CameraRig({ target }: { target: [number, number, number] }) {
 export default function Scene({ category }: { category: CategoryId }) {
   const [weak, setWeak] = useState<boolean | null>(null);
   useEffect(() => setWeak(detectWeak()), []);
+  const Model = MODELS[category];
+  const target = CATEGORY_MAP[category].target;
   if (weak === null) return null;
 
-  const Model = MODELS[category];
   return (
     <Canvas
         key={category}
@@ -67,7 +48,7 @@ export default function Scene({ category }: { category: CategoryId }) {
         camera={{ position: [9, 5.5, 10.5], fov: 36, near: 0.1, far: 100 }}
         gl={{ antialias: !weak, powerPreference: "low-power" }}
       >
-        <CameraRig target={TARGET[category]} />
+        <CameraRig target={target} />
         <hemisphereLight args={["#ffffff", "#8aa3bd", 1.1]} />
         <directionalLight position={[6, 10, 5]} intensity={1.9} />
         <directionalLight position={[-6, 4, -4]} intensity={0.5} color="#cfe6ff" />
@@ -91,7 +72,7 @@ export default function Scene({ category }: { category: CategoryId }) {
         />
         <ContactShadows position={[0, 0.01, 0]} scale={18} blur={2.6} opacity={0.35} far={6} frames={weak ? 1 : 60} resolution={512} />
         <OrbitControls
-          target={TARGET[category]}
+          target={target}
           enableDamping
           autoRotate={!weak}
           autoRotateSpeed={0.6}

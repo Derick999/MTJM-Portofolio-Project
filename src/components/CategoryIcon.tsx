@@ -39,6 +39,33 @@ const PATHS: Record<CategoryId, React.ReactNode> = {
       <path d="M13 14v22M21 14v22M29 14v22M37 14v22" />
     </>
   ),
+  "power-plant": (
+    <>
+      <rect x="5" y="26" width="26" height="14" />
+      <path d="M11 26V12h5v14M22 26V8h5v18M33 40V30h9v10" />
+    </>
+  ),
+  "electrical-work": <path d="M27 5 12 27h10l-3 16 17-24H26z" />,
+  "civil-steel": <path d="M8 40V8h32v32M8 8l32 32M40 8 8 40" />,
+  "fire-protection": <path d="M24 5c2 8 10 12 10 22a10 10 0 0 1-20 0c0-5 3-8 5-11 1 4 3 5 5 5 0-4-1-9 0-16z" />,
+  "storage-tanks": (
+    <>
+      <ellipse cx="24" cy="12" rx="14" ry="5" />
+      <path d="M10 12v24c0 3 6 6 14 6s14-3 14-6V12" />
+    </>
+  ),
+  "industrial-maintenance": (
+    <>
+      <circle cx="24" cy="24" r="7" />
+      <path d="M24 6v6M24 36v6M6 24h6M36 24h6M11 11l4 4M33 33l4 4M37 11l-4 4M15 33l-4 4" />
+    </>
+  ),
+  "building-factory": (
+    <>
+      <path d="M5 40V24l9-8v8l9-8v8l9-8v24z" />
+      <path d="M32 40h11V20h-5" />
+    </>
+  ),
 };
 
 /** Ikon garis sederhana per kategori, dipakai bila proyek belum punya foto. */

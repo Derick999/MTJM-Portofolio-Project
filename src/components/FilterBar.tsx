@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
-import { CATEGORIES } from "@/lib/categories";
-import { EMPTY_FILTERS, filterOptions, hasActiveFilters, type Filters } from "@/lib/filters";
+import { CATEGORIES, visibleCategories, type CategoryId } from "@/config/categories";
+import { applyFilters, EMPTY_FILTERS, filterOptions, hasActiveFilters, type Filters } from "@/lib/filters";
 import type { Project } from "@/lib/types";
 
 interface Props {
@@ -20,6 +20,12 @@ const selectCls =
 export function FilterBar({ projects, value, onChange, count, showCategory = true }: Props) {
   const opts = useMemo(() => filterOptions(projects, value), [projects, value]);
   const active = hasActiveFilters(value, !showCategory);
+  // daftar kategori sama dengan tab; angka mengikuti filter lain, kategori kosong disembunyikan
+  const totals = useMemo(() => new Map<CategoryId, number>(CATEGORIES.map((c) => [c.id, projects.filter((p) => p.category === c.id).length])), [projects]);
+  const counts = useMemo(() => {
+    const base = applyFilters(projects, { ...value, category: "" });
+    return new Map<CategoryId, number>(CATEGORIES.map((c) => [c.id, base.filter((p) => p.category === c.id).length]));
+  }, [projects, value]);
 
   return (
     <form
@@ -36,9 +42,9 @@ export function FilterBar({ projects, value, onChange, count, showCategory = tru
             onChange={(e) => onChange({ ...value, category: e.target.value as Filters["category"] })}
           >
             <option value="">Semua kategori</option>
-            {CATEGORIES.map((c) => (
+            {visibleCategories(totals, value.category).map((c) => (
               <option key={c.id} value={c.id}>
-                {c.label}
+                {c.label} ({counts.get(c.id) ?? 0})
               </option>
             ))}
           </select>

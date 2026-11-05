@@ -1,16 +1,13 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { CATEGORIES, CATEGORY_MAP, type CategoryId } from "@/lib/categories";
+import { CATEGORY_MAP, FAMILIES, visibleCategories, type CategoryId } from "@/config/categories";
 import { applyFilters, SORT_OPTIONS, type Filters, type SortKey } from "@/lib/filters";
 import type { Project } from "@/lib/types";
+import { CategoryTabs } from "@/components/CategoryTabs";
 import { FilterBar } from "@/components/FilterBar";
 import { ProjectList } from "@/components/ProjectList";
 
-export const tabCls = (on: boolean) =>
-  `inline-flex min-h-11 shrink-0 items-center rounded-full border px-4 text-sm font-semibold transition ${
-    on ? "border-accent bg-accent text-white" : "border-line bg-surface text-muted hover:border-accent hover:text-accent"
-  }`;
 export const linkBtn = "inline-flex min-h-11 items-center font-semibold text-accent underline underline-offset-2 hover:text-navy";
 
 export interface DashboardViewProps {
@@ -23,7 +20,10 @@ export interface DashboardViewProps {
   onSort: (k: SortKey) => void;
   /** Jumlah proyek yang lolos filter (ditampilkan di FilterBar). */
   filteredCount: number;
+  /** Jumlah per kategori sesuai filter aktif (angka di tab dan legenda). */
   countsByCategory: Map<CategoryId, number>;
+  /** Jumlah per kategori TANPA filter (menentukan kategori kosong yang disembunyikan). */
+  totalsByCategory: Map<CategoryId, number>;
   /** Kategori yang modelnya sedang tampil (tab "Semua" memakai kategori terakhir). */
   modelCategory: CategoryId;
   /** Panel daftar proyek di samping peta. */
@@ -50,6 +50,8 @@ export interface DashboardViewProps {
 export function DashboardView(p: DashboardViewProps) {
   const { projects, filters, panel } = p;
   const cat = CATEGORY_MAP[p.modelCategory];
+  const visible = visibleCategories(p.totalsByCategory, filters.category);
+  const visibleFamilies = FAMILIES.filter((f) => visible.some((c) => c.family === f.id));
   return (
     <>
       {/* ===== PETA ===== */}
@@ -65,23 +67,14 @@ export function DashboardView(p: DashboardViewProps) {
           <FilterBar projects={projects ?? []} value={filters} onChange={p.onFilters} count={p.filteredCount} showCategory />
         </div>
 
-        <ul className="mt-3 flex flex-wrap gap-2" aria-label="Legenda kategori">
-          {CATEGORIES.map((c) => {
-            const on = filters.category === c.id;
+        <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-2" aria-label="Legenda warna titik peta">
+          {visibleFamilies.map((f) => {
+            const cats = visible.filter((c) => c.family === f.id);
             return (
-              <li key={c.id}>
-                <button
-                  type="button"
-                  aria-pressed={on}
-                  onClick={() => p.onFilters({ ...filters, category: on ? "" : c.id })}
-                  className={`inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm font-medium transition ${
-                    on ? "border-accent bg-accent/10 text-ink" : "border-line bg-surface text-muted hover:border-accent"
-                  }`}
-                >
-                  <span className="h-3 w-3 rounded-full border border-white shadow-[0_0_0_1px_rgb(20_20_74/0.35)]" style={{ background: c.color }} aria-hidden />
-                  {c.label}
-                  <span className="text-muted">{p.countsByCategory.get(c.id)}</span>
-                </button>
+              <li key={f.id} title={cats.map((c) => c.label).join(", ")} className="inline-flex items-center gap-2 text-sm font-medium text-ink">
+                <span className="h-3.5 w-3.5 rounded-full border border-white shadow-[0_0_0_1px_rgb(20_20_74/0.35)]" style={{ background: f.color }} aria-hidden />
+                {f.label}
+                <span className="text-muted">{cats.reduce((n, c) => n + (p.countsByCategory.get(c.id) ?? 0), 0)}</span>
               </li>
             );
           })}
@@ -122,16 +115,13 @@ export function DashboardView(p: DashboardViewProps) {
           Pilih kategori untuk melihat ilustrasi 3D dan daftar proyek yang sudah kami kerjakan.
         </p>
 
-        <div role="tablist" aria-label="Kategori proyek" className="-mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-2">
-          <button role="tab" aria-selected={!filters.category} onClick={() => p.onFilters({ ...filters, category: "" })} className={tabCls(!filters.category)}>
-            Semua {projects && <span className="ml-1 opacity-80">{applyFilters(projects, { ...filters, category: "" }).length}</span>}
-          </button>
-          {CATEGORIES.map((c) => (
-            <button key={c.id} role="tab" aria-selected={filters.category === c.id} onClick={() => p.onFilters({ ...filters, category: c.id })} className={tabCls(filters.category === c.id)}>
-              {c.label} <span className="ml-1 opacity-80">{p.countsByCategory.get(c.id)}</span>
-            </button>
-          ))}
-        </div>
+        <CategoryTabs
+          categories={visible}
+          selected={filters.category}
+          counts={p.countsByCategory}
+          allCount={projects ? applyFilters(projects, { ...filters, category: "" }).filter((x) => visible.some((c) => c.id === x.category)).length : null}
+          onSelect={(c) => p.onFilters({ ...filters, category: c })}
+        />
 
         <div className="mt-4 grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-2">
           <div data-metric="viewer" className="h-[330px] sm:h-[430px] lg:sticky lg:top-24 lg:h-[calc(100dvh-8rem)] lg:max-h-[650px]">

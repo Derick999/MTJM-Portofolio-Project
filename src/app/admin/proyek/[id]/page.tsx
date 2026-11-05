@@ -6,7 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { AdminGate } from "@/components/admin/AdminGate";
 import { PhotoManager, type PhotoItem } from "@/components/admin/PhotoManager";
-import { CATEGORIES, type CategoryId } from "@/lib/categories";
+import { CATEGORIES, FAMILIES, type CategoryId } from "@/config/categories";
 import { removeStorageFiles, saveProject, uploadPhoto } from "@/lib/admin";
 import { citiesOf, findCity, PROVINCES } from "@/lib/indonesia";
 import { compressPhoto, MIN_PHOTOS } from "@/lib/photos";
@@ -129,7 +129,11 @@ function Form({ id }: { id: string | null }) {
         <label className="text-sm">
           Kategori
           <select className={field} value={form.category} onChange={(e) => set("category", e.target.value as CategoryId)}>
-            {CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
+            {FAMILIES.map((f) => (
+              <optgroup key={f.id} label={f.label}>
+                {CATEGORIES.filter((c) => c.family === f.id).map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
+              </optgroup>
+            ))}
           </select>
         </label>
         <label className="text-sm">

@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CATEGORIES, CATEGORY_MAP, isCategory, type CategoryId } from "@/lib/categories";
+import { CATEGORIES, CATEGORY_MAP, isCategory, type CategoryId } from "@/config/categories";
 import { applyFilters, EMPTY_FILTERS, hasActiveFilters, sortProjects, type Filters, type SortKey } from "@/lib/filters";
 import { usePublicProjects } from "@/lib/projects";
 import type { Project } from "@/lib/types";
@@ -117,6 +117,11 @@ export function Dashboard() {
     return new Map(CATEGORIES.map((c) => [c.id, base.filter((p) => p.category === c.id).length]));
   }, [projects, filters]);
 
+  const totalsByCategory = useMemo(
+    () => new Map(CATEGORIES.map((c) => [c.id, (projects ?? []).filter((p) => p.category === c.id).length])),
+    [projects],
+  );
+
   const panelProjects = useMemo(() => {
     if (!filtered) return null;
     if (point) return sortProjects(projectsAtPoint(point, filtered), "tahun-baru");
@@ -159,6 +164,7 @@ export function Dashboard() {
         onSort={setSort}
         filteredCount={filtered?.length ?? 0}
         countsByCategory={countsByCategory}
+        totalsByCategory={totalsByCategory}
         modelCategory={modelCategory}
         panel={{ title: panelTitle, projects: panelProjects, hasLocation, onShowAll: showAllLocations }}
         sorted={sorted}

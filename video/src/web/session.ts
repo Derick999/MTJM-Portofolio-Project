@@ -1,7 +1,7 @@
 // Mesin sesi UI simulasi (adegan 5-8): menurunkan SEMUA keadaan halaman (filter, drawer, dropdown, tampilan peta, gulir,
 // posisi kursor) murni dari frame + skrip (script.ts). Tidak ada state nyata: tiap frame dihitung ulang.
 import { Easing } from "remotion";
-import { CATEGORIES, type CategoryId } from "@/lib/categories";
+import { CATEGORIES, visibleCategories, type CategoryId } from "@/lib/categories";
 import { applyFilters, EMPTY_FILTERS, filterOptions, hasActiveFilters, sortProjects, type Filters } from "@/lib/filters";
 import type { Project } from "@/lib/types";
 import { CONFIG, sec } from "../config";
@@ -96,6 +96,8 @@ export function sessionAt(frame: number, steps: Step[]): Session {
 // Turunan dari filter
 // ---------------------------------------------------------------------------
 export const filteredFor = (f: Filters) => applyFilters(DEMO_PROJECTS, f);
+/** Jumlah per kategori tanpa filter: kategori kosong disembunyikan dari tab dan dropdown (sama dengan web). */
+export const TOTALS = new Map<CategoryId, number>(CATEGORIES.map((c) => [c.id, DEMO_PROJECTS.filter((p) => p.category === c.id).length]));
 export const panelFor = (f: Filters) => sortProjects(filteredFor(f), "tahun-baru");
 export const countsFor = (f: Filters) => {
   const base = applyFilters(DEMO_PROJECTS, { ...f, category: "" });
@@ -145,7 +147,7 @@ export const DROPDOWN_ROW = 36;
 export const dropdownOptions = (id: "year" | "category", f: Filters): { value: string; label: string }[] =>
   id === "year"
     ? [{ value: "", label: "Semua tahun" }, ...filterOptions(DEMO_PROJECTS, f).years.map((y) => ({ value: y, label: y }))]
-    : [{ value: "", label: "Semua kategori" }, ...CATEGORIES.map((c) => ({ value: c.id, label: c.label }))];
+    : [{ value: "", label: "Semua kategori" }, ...visibleCategories(TOTALS, f.category).map((c) => ({ value: c.id, label: `${c.label} (${countsFor(f).get(c.id) ?? 0})` }))];
 
 // ---------------------------------------------------------------------------
 // Posisi kursor (koordinat jendela, termasuk chrome)
