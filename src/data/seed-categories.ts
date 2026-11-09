@@ -1,4 +1,5 @@
 import type { CategoryId } from "@/config/categories";
+import { legacyToServices } from "@/config/services";
 import type { Project, StatusData } from "@/lib/types";
 
 // Data awal untuk kategori baru (Power Plant, Electrical, Civil, Fire Protection, Storage Tanks, Maintenance, Building Factory).
@@ -11,7 +12,7 @@ import type { Project, StatusData } from "@/lib/types";
 // Draft yang lokasinya belum diketahui memakai titik sementara (Jakarta atau Bekasi); koordinat itu BUKAN lokasi proyek.
 // Jalankan `npm run seed:categories:sql` untuk membuat supabase/seed_categories.sql dari file ini.
 
-type Seed = Omit<Project, "id" | "created_at" | "photos">;
+type Seed = Omit<Project, "id" | "created_at" | "photos" | "services">;
 
 const DEMO = "Data contoh dari ringkasan company profile. Lengkapi keterangan dan foto lewat halaman admin.";
 
@@ -90,6 +91,7 @@ export function seedCategoryProjects(): Project[] {
   return SEED_CATEGORIES.map((p, i) => ({
     ...p,
     id: `seedc-${i + 1}`,
+    services: legacyToServices(p.category, p.name),
     created_at: new Date(Date.UTC(2024, 1, 1, 0, i)).toISOString(),
     photos: [], // tanpa foto: kartu memakai ikon kategori
   }));

@@ -1,6 +1,7 @@
+import { legacyToServices } from "@/config/services";
 import type { Project } from "@/lib/types";
 
-type Seed = Omit<Project, "id" | "created_at" | "photos">;
+type Seed = Omit<Project, "id" | "created_at" | "photos" | "services">;
 
 const DEMO = "Data contoh dari ringkasan company profile. Lengkapi keterangan dan foto lewat halaman admin.";
 
@@ -179,6 +180,7 @@ export function seedProjects(): Project[] {
   return SEED.map((s, i) => ({
     ...s,
     id: `seed-${i + 1}`,
+    services: legacyToServices(s.category, s.name),
     created_at: new Date(Date.UTC(2024, 0, 1, 0, i)).toISOString(),
     photos: [`/placeholder/${s.category}.svg`],
   }));

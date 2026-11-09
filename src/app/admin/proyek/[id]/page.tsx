@@ -6,7 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { AdminGate } from "@/components/admin/AdminGate";
 import { PhotoManager, type PhotoItem } from "@/components/admin/PhotoManager";
-import { CATEGORIES, FAMILIES, type CategoryId } from "@/config/categories";
+import { GROUPS, isService, legacyCategoryOf, servicesOf } from "@/config/services";
 import { removeStorageFiles, saveProject, uploadPhoto } from "@/lib/admin";
 import { citiesOf, findCity, PROVINCES } from "@/lib/indonesia";
 import { compressPhoto, MIN_PHOTOS } from "@/lib/photos";
@@ -22,7 +22,8 @@ const THIS_YEAR = new Date().getFullYear();
 const YEARS = Array.from({ length: THIS_YEAR + 2 - 1995 }, (_, i) => THIS_YEAR + 1 - i);
 
 const EMPTY: ProjectInput = {
-  category: "boiler",
+  category: "boiler", // diisi otomatis dari layanan utama saat menyimpan
+  services: [],
   name: "",
   client: "",
   year: THIS_YEAR,
@@ -82,6 +83,7 @@ function Form({ id }: { id: string | null }) {
 
   const validate = (): string | null => {
     if (!form.name.trim()) return "Nama proyek wajib diisi.";
+    if (!isService(form.services[0])) return "Pilih layanan utama proyek.";
     if (!form.province || !form.city) return "Pilih provinsi dan kota/kabupaten lokasi proyek.";
     if (photos.length < MIN_PHOTOS) return "Tambahkan minimal 1 foto proyek.";
     return null;
@@ -104,7 +106,8 @@ function Form({ id }: { id: string | null }) {
           urls.push(url);
         } else urls.push(p.url);
       }
-      await saveProject(id, { ...form, name: form.name.trim(), client: form.client.trim() }, urls);
+      const services = [...new Set(form.services.filter(isService))];
+      await saveProject(id, { ...form, services, category: legacyCategoryOf(services[0]), name: form.name.trim(), client: form.client.trim() }, urls);
       // Hapus file foto lama yang sudah dibuang dari daftar.
       const dropped = (original?.photos ?? []).filter((u) => !urls.includes(u));
       if (dropped.length) await removeStorageFiles(dropped).catch(() => {});
@@ -127,11 +130,16 @@ function Form({ id }: { id: string | null }) {
 
       <fieldset className="grid gap-4 sm:grid-cols-2">
         <label className="text-sm">
-          Kategori
-          <select className={field} value={form.category} onChange={(e) => set("category", e.target.value as CategoryId)}>
-            {FAMILIES.map((f) => (
-              <optgroup key={f.id} label={f.label}>
-                {CATEGORIES.filter((c) => c.family === f.id).map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
+          Layanan utama <span className="text-danger">*</span>
+          <select
+            className={field}
+            value={form.services[0] ?? ""}
+            onChange={(e) => set("services", [e.target.value, ...form.services.slice(1).filter((x) => x !== e.target.value)])}
+          >
+            <option value="" disabled>Pilih layanan...</option>
+            {GROUPS.map((g) => (
+              <optgroup key={g.slug} label={g.label}>
+                {servicesOf(g.slug).map((sv) => <option key={sv.slug} value={sv.slug}>{sv.label}</option>)}
               </optgroup>
             ))}
           </select>
@@ -151,6 +159,38 @@ function Form({ id }: { id: string | null }) {
           <input className={field} value={form.client} onChange={(e) => set("client", e.target.value)} placeholder="Nama perusahaan pemberi kerja" />
         </label>
       </fieldset>
+
+      <details className="rounded border border-line bg-surface p-3">
+        <summary className="cursor-pointer text-sm font-semibold">
+          Layanan lain (opsional){form.services.length > 1 ? ` - ${form.services.length - 1} dipilih` : ""}
+        </summary>
+        <p className="mt-2 text-xs text-muted">Centang bila proyek ini juga mencakup layanan lain. Layanan utama dipilih di atas.</p>
+        <div className="mt-3 space-y-3">
+          {GROUPS.map((g) => (
+            <div key={g.slug}>
+              <p className="text-xs font-bold uppercase tracking-wide text-muted">{g.label}</p>
+              <div className="mt-1 flex flex-wrap gap-x-4">
+                {servicesOf(g.slug).map((sv) => {
+                  const isMain = form.services[0] === sv.slug;
+                  const on = form.services.includes(sv.slug);
+                  return (
+                    <label key={sv.slug} className={`inline-flex min-h-11 items-center gap-2 text-sm ${isMain ? "opacity-60" : ""}`}>
+                      <input
+                        type="checkbox"
+                        className="h-5 w-5"
+                        checked={on}
+                        disabled={isMain}
+                        onChange={(e) => set("services", e.target.checked ? [...form.services, sv.slug] : form.services.filter((x) => x !== sv.slug))}
+                      />
+                      {sv.label}
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      </details>
 
       <fieldset className="space-y-4">
         <legend className="font-display text-xl font-bold text-accent">Lokasi</legend>

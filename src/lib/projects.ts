@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { seedProjects } from "@/data/seed";
 import { seedCategoryProjects } from "@/data/seed-categories";
+import { legacyToServices } from "@/config/services";
 import { getSupabase } from "./supabase";
 import type { Project } from "./types";
 
@@ -14,6 +15,8 @@ function fromRow(r: Row): Project {
   const { project_photos, ...rest } = r;
   return {
     ...rest,
+    // proyek yang belum di-backfill (migrasi 004 belum dijalankan) memakai tebakan dari category lama
+    services: rest.services?.length ? rest.services : legacyToServices(rest.category, rest.name),
     photos: (project_photos ?? []).sort((a, b) => a.sort_order - b.sort_order).map((p) => p.url),
   };
 }

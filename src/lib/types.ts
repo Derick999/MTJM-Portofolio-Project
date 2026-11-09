@@ -5,7 +5,10 @@ export type StatusData = "published" | "draft";
 export interface Project {
   id: string;
   slug: string;
+  /** DEPRECATED: dipertahankan untuk kompatibilitas database; UI memakai `services`. */
   category: CategoryId;
+  /** Slug layanan (src/config/services.ts); elemen pertama = layanan utama. */
+  services: string[];
   name: string;
   client: string;
   year: number;

@@ -1,4 +1,5 @@
 import { CATEGORIES, type CategoryId } from "./categories";
+import { isGroup, isService, SERVICE_MAP, SERVICES, GROUPS } from "@/config/services";
 import type { Project } from "./types";
 
 export interface Filters {
@@ -66,4 +67,41 @@ export function slugify(text: string): string {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 70);
+}
+
+// ---------------------------------------------------------------------------
+// Filter berbasis layanan (taksonomi 8 group / 27 sub-layanan). SATU fungsi untuk peta, daftar, drawer, dan badge jumlah.
+// Hanya proyek published yang dihitung; pemanggil bertanggung jawab memberi daftar published (usePublicProjects sudah begitu).
+// ---------------------------------------------------------------------------
+export interface ServiceFilters {
+  /** slug sub-layanan ATAU slug group (group = salah satu sub-layanannya, utama atau tambahan) */
+  layanan?: string;
+  provinsi?: string;
+  kota?: string;
+  tahun?: string | number;
+}
+
+/** Apakah proyek termasuk layanan/group ini (layanan utama maupun tambahan). */
+export function matchesService(p: Pick<Project, "services">, layanan: string): boolean {
+  if (isService(layanan)) return p.services.includes(layanan);
+  if (isGroup(layanan)) return p.services.some((s) => isService(s) && SERVICE_MAP[s].group === layanan);
+  return false;
+}
+
+export function filterProjects(projects: Project[], f: ServiceFilters): Project[] {
+  return projects.filter(
+    (p) =>
+      (!f.layanan || matchesService(p, f.layanan)) &&
+      (!f.provinsi || p.province === f.provinsi) &&
+      (!f.kota || p.city === f.kota) &&
+      (!f.tahun || String(p.year) === String(f.tahun)),
+  );
+}
+
+/** Jumlah proyek per sub-layanan dan per group (satu proyek dihitung sekali per group). Untuk badge. */
+export function serviceCounts(projects: Project[]): Map<string, number> {
+  const out = new Map<string, number>();
+  for (const sv of SERVICES) out.set(sv.slug, projects.filter((p) => p.services.includes(sv.slug)).length);
+  for (const g of GROUPS) out.set(g.slug, projects.filter((p) => matchesService(p, g.slug)).length);
+  return out;
 }
