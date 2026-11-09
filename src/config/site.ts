@@ -26,8 +26,8 @@ export const SITE = {
   mainSiteButton: "Main Website",
   backToTop: "Kembali ke atas",
 
-  /** Tampilkan nama klien ke publik? Matikan sampai MTJM memberi izin; nama klien tetap tersimpan dan terlihat di admin. */
-  showClientNames: false,
+  /** Tampilkan owner/customer ke publik (kartu: owner, bila kosong customer; drawer: Owner dan Customer). Matikan bila MTJM meminta. */
+  showClientNames: true,
 
   hero: {
     eyebrow: "Your Technical Partner",

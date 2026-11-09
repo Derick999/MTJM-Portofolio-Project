@@ -53,7 +53,7 @@ export function hasActiveFilters(f: Filters, ignoreCategory = false): boolean {
 export function filterOptions(projects: Project[], f: Filters) {
   const provinces = [...new Set(projects.map((p) => p.province))].sort((a, b) => a.localeCompare(b, "id"));
   const cities = [
-    ...new Set(projects.filter((p) => !f.province || p.province === f.province).map((p) => p.city)),
+    ...new Set(projects.filter((p) => !f.province || p.province === f.province).map((p) => p.city).filter(Boolean)), // proyek tanpa kota (titik provinsi/pusat Jakarta) tidak menambah opsi kosong
   ].sort((a, b) => a.localeCompare(b, "id"));
   const years = [...new Set(projects.map((p) => p.year))].sort((a, b) => b - a).map(String);
   return { provinces, cities, years };

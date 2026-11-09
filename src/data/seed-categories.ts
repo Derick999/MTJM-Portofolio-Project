@@ -12,7 +12,7 @@ import type { Project, StatusData } from "@/lib/types";
 // Draft yang lokasinya belum diketahui memakai titik sementara (Jakarta atau Bekasi); koordinat itu BUKAN lokasi proyek.
 // Jalankan `npm run seed:categories:sql` untuk membuat supabase/seed_categories.sql dari file ini.
 
-type Seed = Omit<Project, "id" | "created_at" | "photos" | "services">;
+type Seed = Omit<Project, "id" | "created_at" | "photos" | "services" | "owner" | "customer" | "location_precision">;
 
 const DEMO = "Data contoh dari ringkasan company profile. Lengkapi keterangan dan foto lewat halaman admin.";
 
@@ -92,6 +92,9 @@ export function seedCategoryProjects(): Project[] {
     ...p,
     id: `seedc-${i + 1}`,
     services: legacyToServices(p.category, p.name),
+    owner: p.client,
+    customer: "",
+    location_precision: "city" as const,
     created_at: new Date(Date.UTC(2024, 1, 1, 0, i)).toISOString(),
     photos: [], // tanpa foto: kartu memakai ikon kategori
   }));

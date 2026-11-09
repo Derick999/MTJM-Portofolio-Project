@@ -5,6 +5,7 @@ import Link from "next/link";
 import { AdminGate } from "@/components/admin/AdminGate";
 import { StatsForm } from "@/components/admin/StatsForm";
 import { SERVICE_MAP, isService } from "@/config/services";
+import { placeLabel } from "@/lib/display";
 import { deleteProject } from "@/lib/admin";
 import { fetchProjects } from "@/lib/projects";
 import type { Project } from "@/lib/types";
@@ -69,7 +70,7 @@ function ProjectTable({ onSignOut }: { onSignOut: () => void }) {
               <div className="min-w-0 flex-1">
                 <p className="truncate font-semibold">{p.name}</p>
                 <p className="text-xs text-muted">
-                  {isService(p.services[0]) ? SERVICE_MAP[p.services[0]].label : "Layanan belum dipilih"}{p.services.length > 1 ? ` +${p.services.length - 1}` : ""} · {p.year} · {p.city}, {p.province}
+                  {isService(p.services[0]) ? SERVICE_MAP[p.services[0]].label : "Layanan belum dipilih"}{p.services.length > 1 ? ` +${p.services.length - 1}` : ""} · {p.year} · {placeLabel(p)}
                 </p>
                 {p.admin_note && <p className="mt-1 text-xs text-amber-800">Catatan: {p.admin_note}</p>}
               </div>

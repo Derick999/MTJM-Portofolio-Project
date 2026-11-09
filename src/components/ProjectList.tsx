@@ -1,5 +1,5 @@
 import type { Project } from "@/lib/types";
-import { publicClient, realPhotos } from "@/lib/display";
+import { displayName, placeLabel, publicClient, realPhotos } from "@/lib/display";
 import { projectLabelColor } from "@/lib/service-display";
 import { CategoryIcon } from "./CategoryIcon";
 import { ProjectPhoto } from "./ProjectPhoto";
@@ -63,7 +63,7 @@ export function ProjectList({ projects, onSelect, error, showCategory = false, g
             )}
             <span className="min-w-0 flex-1 py-0.5">
               <span className="block line-clamp-2 text-base font-bold leading-tight group-hover:text-accent">
-                {p.name}
+                {displayName(p)}
               </span>
               {showCategory && (
                 <span className="block text-xs font-semibold uppercase tracking-wide" style={{ color: sd.color }}>
@@ -76,7 +76,7 @@ export function ProjectList({ projects, onSelect, error, showCategory = false, g
               <span className="mt-1 flex flex-wrap gap-x-3 text-xs text-muted">
                 <span>{p.year}</span>
                 <span className="truncate">
-                  {p.city}, {p.province}
+                  {placeLabel(p)}
                 </span>
               </span>
             </span>

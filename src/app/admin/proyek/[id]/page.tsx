@@ -26,6 +26,9 @@ const EMPTY: ProjectInput = {
   services: [],
   name: "",
   client: "",
+  owner: "",
+  customer: "",
+  location_precision: "city",
   year: THIS_YEAR,
   province: "",
   city: "",
@@ -73,7 +76,7 @@ function Form({ id }: { id: string | null }) {
   const pickCity = (city: string) => {
     const c = findCity(form.province, city);
     setPinMoved(false);
-    setForm((f) => ({ ...f, city, ...(c ? { lat: c.lat, lng: c.lng } : {}) }));
+    setForm((f) => ({ ...f, city, location_precision: "city", ...(c ? { lat: c.lat, lng: c.lng } : {}) }));
   };
   const resetPin = () => {
     const c = findCity(form.province, form.city);
@@ -84,7 +87,9 @@ function Form({ id }: { id: string | null }) {
   const validate = (): string | null => {
     if (!form.name.trim()) return "Nama proyek wajib diisi.";
     if (!isService(form.services[0])) return "Pilih layanan utama proyek.";
-    if (!form.province || !form.city) return "Pilih provinsi dan kota/kabupaten lokasi proyek.";
+    if (!form.province) return "Pilih provinsi lokasi proyek.";
+    // proyek hasil impor bisa hanya punya titik provinsi/pusat kota (kota kosong); selain itu kota wajib
+    if (!form.city && form.location_precision === "city") return "Pilih kota/kabupaten lokasi proyek.";
     if (photos.length < MIN_PHOTOS) return "Tambahkan minimal 1 foto proyek.";
     return null;
   };
@@ -107,7 +112,7 @@ function Form({ id }: { id: string | null }) {
         } else urls.push(p.url);
       }
       const services = [...new Set(form.services.filter(isService))];
-      await saveProject(id, { ...form, services, category: legacyCategoryOf(services[0]), name: form.name.trim(), client: form.client.trim() }, urls);
+      await saveProject(id, { ...form, services, category: legacyCategoryOf(services[0]), name: form.name.trim(), owner: form.owner.trim(), customer: form.customer.trim(), client: (form.owner.trim() || form.customer.trim()) }, urls);
       // Hapus file foto lama yang sudah dibuang dari daftar.
       const dropped = (original?.photos ?? []).filter((u) => !urls.includes(u));
       if (dropped.length) await removeStorageFiles(dropped).catch(() => {});
@@ -154,9 +159,13 @@ function Form({ id }: { id: string | null }) {
           Nama proyek <span className="text-danger">*</span>
           <input className={field} value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="Contoh: PLTMG Teluk Lembu 7 x 3,3 MW" required />
         </label>
-        <label className="text-sm sm:col-span-2">
-          Klien
-          <input className={field} value={form.client} onChange={(e) => set("client", e.target.value)} placeholder="Nama perusahaan pemberi kerja" />
+        <label className="text-sm">
+          Owner
+          <input className={field} value={form.owner} onChange={(e) => set("owner", e.target.value)} placeholder="Pemilik proyek" />
+        </label>
+        <label className="text-sm">
+          Customer
+          <input className={field} value={form.customer} onChange={(e) => set("customer", e.target.value)} placeholder="Pelanggan / kontraktor utama" />
         </label>
       </fieldset>
 
@@ -203,7 +212,7 @@ function Form({ id }: { id: string | null }) {
             </select>
           </label>
           <label className="text-sm">
-            Kota / Kabupaten <span className="text-danger">*</span>
+            Kota / Kabupaten {form.location_precision === "city" && <span className="text-danger">*</span>}
             <select className={field} value={form.city} disabled={!form.province} onChange={(e) => pickCity(e.target.value)}>
               <option value="">{form.province ? "Pilih kota/kabupaten" : "Pilih provinsi dulu"}</option>
               {cities.map((c) => <option key={c.name}>{c.name}</option>)}

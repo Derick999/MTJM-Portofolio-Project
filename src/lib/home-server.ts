@@ -1,5 +1,5 @@
 import { GROUPS } from "@/config/services";
-import { realPhotos } from "./display";
+import { displayName, placeShort, realPhotos } from "./display";
 import { matchesService } from "./filters";
 import { getPublished, getServiceCounts, type PublishedRow } from "./published-server";
 import { projectLabelColor } from "./service-display";
@@ -43,8 +43,8 @@ export async function fetchHomeSummary(): Promise<HomeSummary> {
   }
   const latest = withPhoto.slice(0, 3).map((r) => ({
     slug: r.slug,
-    name: r.name,
-    city: r.city,
+    name: displayName(r),
+    city: placeShort(r),
     label: projectLabelColor({ services: r.services, category: r.category as never }).label,
     photo: realPhotos(r)[0],
   }));

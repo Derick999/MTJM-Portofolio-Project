@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { publicClient, publicText, realPhotos } from "@/lib/display";
+import { placeLabel, publicText, realPhotos } from "@/lib/display";
 import { projectLabelColor, serviceLabels } from "@/lib/service-display";
 import { SITE } from "@/config/site";
 import { mainSiteHref } from "@/lib/links";
@@ -61,9 +61,10 @@ export function ProjectDetail({ project, onClose }: { project: Project; onClose:
   }, []);
 
   const rows: [string, string][] = [
-    ["Klien", publicClient(project)],
+    ["Owner", SITE.showClientNames ? project.owner : ""],
+    ["Customer", SITE.showClientNames ? project.customer : ""],
     ["Tahun", String(project.year)],
-    ["Lokasi", `${project.city}, ${project.province}`],
+    ["Lokasi", placeLabel(project)],
     [layanan.length > 1 ? "Layanan" : "Layanan", layanan.length ? layanan.join(", ") : cat.label],
   ];
 

@@ -1,7 +1,7 @@
 import { legacyToServices } from "@/config/services";
 import type { Project } from "@/lib/types";
 
-type Seed = Omit<Project, "id" | "created_at" | "photos" | "services">;
+type Seed = Omit<Project, "id" | "created_at" | "photos" | "services" | "owner" | "customer" | "location_precision">;
 
 const DEMO = "Data contoh dari ringkasan company profile. Lengkapi keterangan dan foto lewat halaman admin.";
 
@@ -181,6 +181,9 @@ export function seedProjects(): Project[] {
     ...s,
     id: `seed-${i + 1}`,
     services: legacyToServices(s.category, s.name),
+    owner: s.client,
+    customer: "",
+    location_precision: "city" as const,
     created_at: new Date(Date.UTC(2024, 0, 1, 0, i)).toISOString(),
     photos: [`/placeholder/${s.category}.svg`],
   }));

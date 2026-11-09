@@ -5,6 +5,7 @@ import type * as Leaflet from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
+import { placeShort } from "@/lib/display";
 import { projectLabelColor } from "@/lib/service-display";
 import { INDONESIA_BOUNDS } from "@/lib/indonesia";
 import type { Project } from "@/lib/types";
@@ -103,7 +104,7 @@ export default function MapView({ projects, provinceFilter, point, onPoint, onPr
         iconAnchor: [22, 22],
       });
       const m = s.L.marker([p.lat, p.lng], { icon, title: p.name, alt: p.name });
-      m.on("click", () => latest.current.onPoint({ title: p.city, lat: p.lat, lng: p.lng }));
+      m.on("click", () => latest.current.onPoint({ title: placeShort(p), lat: p.lat, lng: p.lng }));
       return m;
     });
     s.cluster.addLayers(layers);

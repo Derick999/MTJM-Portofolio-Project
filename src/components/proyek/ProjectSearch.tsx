@@ -65,7 +65,7 @@ export function ProjectSearch({ initialProjects, initial }: { initialProjects: P
     const needle = q.trim().toLowerCase();
     if (!needle) return base;
     // klien ikut dicari hanya bila namanya boleh tampil ke publik
-    return base.filter((p) => p.name.toLowerCase().includes(needle) || (SITE.showClientNames && p.client.toLowerCase().includes(needle)));
+    return base.filter((p) => p.name.toLowerCase().includes(needle) || (SITE.showClientNames && `${p.owner} ${p.customer} ${p.client}`.toLowerCase().includes(needle)));
   }, [all, layanan, provinsi, kota, tahun, q]);
   const sorted = useMemo(() => sortProjects(filtered, "tahun-baru"), [filtered]);
 

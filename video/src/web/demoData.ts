@@ -44,6 +44,9 @@ const PLACEHOLDER: Project[] = CONFIG.extraDots.map((d, i) => ({
   admin_note: "PLACEHOLDER",
   created_at: new Date(Date.UTC(2024, 6, 1, 0, i)).toISOString(),
   services: [],
+  owner: "",
+  customer: "",
+  location_precision: "city",
   photos: [], // tanpa foto: kartu tampil dengan ikon kategori, sama seperti di web
 }));
 
