@@ -15,9 +15,8 @@ export const SITE = {
 
   nav: [
     { href: "/", label: "Beranda" },
-    { href: "/#proyek", label: "Proyek" },
-    { href: "/#peta", label: "Peta" },
-    { href: "/#hubungi", label: "Hubungi" },
+    { href: "/#layanan", label: "Layanan" },
+    { href: "/#faq", label: "FAQ" },
   ],
   mainSiteButton: "Main Website",
 
@@ -26,10 +25,15 @@ export const SITE = {
 
   hero: {
     eyebrow: "Your Technical Partner",
-    title: "Portofolio Proyek MTJM",
-    text: "Jejak pekerjaan kami di seluruh Indonesia: boiler, genset, water treatment, piping, relokasi, dan modifikasi container.",
-    primary: { label: "Lihat Peta Proyek", href: "#peta" },
-    secondary: { label: "Proyek per Kategori", href: "#proyek" },
+    title: "Setiap proyek punya tempat di peta.",
+    text: "Riwayat proyek PT Multi Tehnik Jaya Mandiri di seluruh Indonesia, dari pembangkit sampai pengolahan air.",
+    primary: { label: "Jelajahi Layanan", href: "#layanan" },
+  },
+
+  /** Blok angka di bawah hero (di samping headline pendek). "Sejak" tampil tanpa animasi. KONFIRMASI tahun ke MTJM sebelum publikasi. */
+  statsBlock: {
+    headline: "Dipercaya industri sejak 2012",
+    since: { value: "2012", label: "Sejak" },
   },
 
   /** Nilai awal angka statistik (dipakai bila database belum terhubung). Diubah admin lewat /admin. */

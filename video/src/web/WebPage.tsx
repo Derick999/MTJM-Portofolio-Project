@@ -87,7 +87,7 @@ export const WebPage = forwardRef<HTMLDivElement, Props>(function WebPage({ sess
           <p className="mt-3 max-w-2xl text-base leading-relaxed text-white/80">{SITE.hero.text}</p>
           <div className="mt-6 flex flex-wrap gap-3">
             <span className="btn btn-white">{SITE.hero.primary.label}</span>
-            <span className="btn btn-ghost-white">{SITE.hero.secondary.label}</span>
+            <span className="btn btn-ghost-white">{SITE.mainSiteButton}</span>
           </div>
         </div>
       </section>

@@ -34,7 +34,7 @@
 }
 .web-box[data-nav="beranda"] header nav a:nth-child(1),
 .web-box[data-nav="proyek"] header nav a:nth-child(2),
-.web-box[data-nav="peta"] header nav a:nth-child(3) {
+.web-box[data-nav="peta"] header nav a:nth-child(2) {
   background: var(--color-nav-active) !important;
   font-weight: 700 !important;
 }

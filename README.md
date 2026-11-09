@@ -1,6 +1,6 @@
 # Portofolio Proyek MTJM
 
-Website portofolio proyek PT Multi Tehnik Jaya Mandiri. Beranda berbentuk dashboard (hero, angka statistik, peta Indonesia interaktif, proyek per kategori dengan 3D). Isi website mengikuti data di database; tampilan tetap. Admin menambah/mengubah proyek lewat `/admin`, dan hasilnya langsung tampil tanpa deploy ulang.
+Website portofolio proyek PT Multi Tehnik Jaya Mandiri. Beranda berbentuk landing page (hero, angka, peta Indonesia interaktif dan proyek per kategori dengan 3D, FAQ, ajakan ke Main Website). Isi website mengikuti data di database; tampilan tetap. Admin menambah/mengubah proyek lewat `/admin`, dan hasilnya langsung tampil tanpa deploy ulang.
 
 Stack: Next.js (App Router) + TypeScript + Tailwind, React Three Fiber (3D), Leaflet + OpenStreetMap (peta, tanpa API key), Supabase (database, foto, login), Vercel (hosting).
 
@@ -58,12 +58,29 @@ Untuk mencabut akses: `delete from public.admins where user_id = '...';`
 3. Deploy. Setiap perubahan data lewat admin langsung terlihat tanpa deploy ulang.
 4. Setelah punya domain, isi `NEXT_PUBLIC_SITE_URL` lalu redeploy sekali.
 
+## 5. Sebelum publikasi: ganti foto placeholder
+
+Hero dan (di tahap berikutnya) kartu group layanan boleh memakai **foto umum berlisensi bebas** (Unsplash / Pexels / Pixabay) sementara foto asli perusahaan belum ada. Foto sementara ini **hanya** untuk latar hero dan latar kartu group, tidak pernah dipakai di kartu proyek, galeri, drawer detail, atau gambar OG.
+
+1. Unduh foto sendiri, taruh di `public/placeholder/` dengan nama sesuai daftar di `src/config/images.ts` (`hero.jpg`, `group-power-plant.jpg`, `group-mechanical.jpg`, dst.). Foto yang filenya belum ada diabaikan: hero memakai gradasi navy + pola titik peta, kartu group memakai gradasi warna group.
+2. Isi `source` (URL halaman foto) dan `license` (lisensi / nama fotografer) di `images.ts` untuk setiap foto yang dipakai.
+3. Saat `npm run build`, log menampilkan peringatan **"Masih ada foto placeholder yang aktif"** beserta daftarnya selama masih ada foto dengan `placeholder: true`.
+4. **Sebelum publikasi, ganti dengan foto asli:** taruh foto perusahaan, ubah `src` di `images.ts`, set `placeholder: false`, isi `license` ("Milik MTJM"). Peringatan hilang bila tidak ada lagi yang aktif.
+
+Kompres foto hero (sekitar 200 KB, lebar 1920 px) supaya halaman cepat dimuat.
+
+## Mengubah isi beranda
+
+- **Headline, subjudul, tombol hero, menu, blok angka ("Dipercaya industri sejak ...", "Sejak 2012"):** `src/config/site.ts`.
+- **FAQ:** `src/config/faq.ts` (pertanyaan, jawaban 2-3 kalimat; `{phone}` dan `{email}` diambil dari site.ts). Isi awal hanyalah CONTOH: konfirmasi ke MTJM sebelum publikasi. Data terstruktur FAQPage dibuat otomatis dari file ini.
+- **Layanan:** `src/config/services.ts` (8 group, 27 sub-layanan). Migrasi `supabase/migrations/004_services.sql` menambah kolom `services` pada proyek.
+
 ## Panduan singkat untuk admin MTJM
 
 **Masuk:** buka `alamat-situs/admin`, isi email dan password.
 
 **Tambah proyek:** klik **+ Tambah proyek**, isi form dari atas ke bawah:
-1. Pilih *Kategori* dan *Tahun*.
+1. Pilih *Layanan utama* (wajib), *Layanan lain* jika ada (opsional), dan *Tahun*.
 2. Isi *Nama proyek* dan *Klien*.
 3. Pilih *Provinsi*, lalu *Kota/Kabupaten*. Titik di peta terisi otomatis. Kalau ingin lebih tepat, geser pin di mini-peta.
 4. Isi *Keterangan* dan *Bagian pekerjaan*.
@@ -79,11 +96,11 @@ Untuk mencabut akses: `delete from public.admins where user_id = '...';`
 ## Struktur folder
 
 ```
-src/app            halaman: / (dashboard), /admin, /admin/proyek/[id]  (/peta dialihkan ke /#peta)
+src/app            halaman: / (beranda), /admin, /admin/proyek/[id]  (/peta dan /proyek dialihkan ke /#layanan)
 src/components     UI; models/ = model 3D per kategori (prims.tsx = bahan dasar)
 src/lib            kategori, filter, data provinsi->kota (indonesia.ts), Supabase, kompresi foto
 src/config/site.ts  semua teks & data perusahaan (menu, hero, CTA, kontak, angka awal)
-src/components/home  Dashboard (peta + kategori) dan CTA
+src/components/home  Hero, FAQ, Dashboard (peta + kategori), CTA
 src/data/seed.ts   data contoh (sumber untuk supabase/seed.sql)
 supabase/          migrasi SQL + seed
 ```

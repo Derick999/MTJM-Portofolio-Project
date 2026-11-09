@@ -34,14 +34,22 @@ export async function fetchProjects(): Promise<Project[]> {
   return (data as Row[]).map(fromRow);
 }
 
+// Hook publik berbagi satu permintaan (hero dan penjelajah tidak mengambil data dua kali). Admin memakai fetchProjects langsung.
+let publicCache: Promise<Project[]> | null = null;
+function fetchPublicOnce(): Promise<Project[]> {
+  publicCache ??= fetchProjects().then((all) => all.filter((p) => p.status_data === "published"));
+  publicCache.catch(() => (publicCache = null));
+  return publicCache;
+}
+
 export function usePublicProjects() {
   const [projects, setProjects] = useState<Project[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let alive = true;
-    fetchProjects()
-      .then((all) => alive && setProjects(all.filter((p) => p.status_data === "published")))
+    fetchPublicOnce()
+      .then((all) => alive && setProjects(all))
       .catch(() => alive && setError("Data proyek gagal dimuat. Coba muat ulang halaman."));
     return () => {
       alive = false;

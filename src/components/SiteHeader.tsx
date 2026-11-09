@@ -8,14 +8,12 @@ import { SITE } from "@/config/site";
 
 /** Section di beranda yang punya menu sendiri, urut dari atas ke bawah. */
 const HOME_SECTIONS = [
-  { href: "/#peta", id: "peta" },
-  { href: "/#proyek", id: "proyek" },
+  { href: "/#layanan", id: "layanan" },
+  { href: "/#faq", id: "faq" },
 ];
 
 /** Menu beranda yang sedang terlihat, berdasarkan posisi scroll. */
 function homeSection(): string {
-  const footer = document.getElementById("hubungi");
-  if (footer && footer.getBoundingClientRect().top < window.innerHeight * 0.75) return "/#hubungi";
   let current = "/";
   for (const s of HOME_SECTIONS) {
     const el = document.getElementById(s.id);
@@ -24,7 +22,7 @@ function homeSection(): string {
   return current;
 }
 
-/** Menu aktif: mengikuti route; di beranda mengikuti section yang terlihat, dan detail proyek menandai "Proyek". */
+/** Menu aktif: mengikuti route; di beranda mengikuti section yang terlihat, dan detail proyek menandai "Layanan". */
 function useActiveNav(path: string) {
   const [section, setSection] = useState("/");
   const [detailOpen, setDetailOpen] = useState(false);
@@ -55,7 +53,7 @@ function useActiveNav(path: string) {
   return (href: string) => {
     const [hrefPath] = href.split("#");
     if (path !== "/") return hrefPath !== "/" && path.startsWith(hrefPath);
-    return (detailOpen ? "/#proyek" : section) === href;
+    return (detailOpen ? "/#layanan" : section) === href;
   };
 }
 

@@ -61,6 +61,21 @@ export function Dashboard() {
     }
   }, [projects]);
 
+  // Hero ("Proyek terbaru") meminta drawer detail dibuka lewat event.
+  useEffect(() => {
+    const onOpen = (e: Event) => {
+      const slug = (e as CustomEvent<string>).detail;
+      const hit = projects?.find((p) => p.slug === slug);
+      if (hit) {
+        setLastCategory(hit.category);
+        setSelected(hit);
+        window.history.replaceState(null, "", `/?p=${hit.slug}`);
+      }
+    };
+    window.addEventListener("mtjm:open-project", onOpen);
+    return () => window.removeEventListener("mtjm:open-project", onOpen);
+  }, [projects]);
+
   const syncUrl = useCallback((k: CategoryId | "", p?: string) => {
     const q = new URLSearchParams();
     if (k) q.set("k", k);
