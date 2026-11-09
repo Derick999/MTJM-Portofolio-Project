@@ -1,10 +1,9 @@
 "use client";
 
 import { useId, useState } from "react";
-import { FAQ, FAQ_MORE_LABEL, FAQ_TITLE } from "@/config/faq";
+import { FAQ, FAQ_CONTACT_LABEL, FAQ_MORE_LABEL, FAQ_TITLE } from "@/config/faq";
 import { SITE } from "@/config/site";
-
-const fill = (text: string) => text.replace("{phone}", SITE.phone).replace("{email}", SITE.email);
+import { mainSiteHref } from "@/lib/links";
 
 /** FAQ: accordion aksesibel (tombol dengan aria-expanded, satu terbuka pada satu waktu) + data terstruktur FAQPage. */
 export function FaqSection() {
@@ -17,7 +16,7 @@ export function FaqSection() {
     mainEntity: FAQ.map((f) => ({
       "@type": "Question",
       name: f.q,
-      acceptedAnswer: { "@type": "Answer", text: `${fill(f.a)} ${FAQ_MORE_LABEL}: ${SITE.url}` },
+      acceptedAnswer: { "@type": "Answer", text: `${f.a} ${FAQ_MORE_LABEL}: ${mainSiteHref("faq")}` },
     })),
   };
 
@@ -47,8 +46,13 @@ export function FaqSection() {
                 </button>
               </h3>
               <div id={`${base}-a${i}`} role="region" aria-labelledby={`${base}-q${i}`} hidden={!isOpen} className="px-4 pb-4 text-sm leading-relaxed text-muted sm:px-5 sm:text-base">
-                <p>{fill(f.a)}</p>
-                <a href={SITE.url} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex min-h-11 items-center font-semibold text-accent underline underline-offset-2 hover:text-navy">
+                <p>{f.a}</p>
+                {f.contact && (
+                  <a href={mainSiteHref("faq", SITE.contactUrl)} target="_blank" rel="noopener noreferrer" className="mr-4 mt-2 inline-flex min-h-11 items-center font-semibold text-accent underline underline-offset-2 hover:text-navy">
+                    {FAQ_CONTACT_LABEL} <span aria-hidden className="ml-1">&#8599;</span>
+                  </a>
+                )}
+                <a href={mainSiteHref("faq")} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex min-h-11 items-center font-semibold text-accent underline underline-offset-2 hover:text-navy">
                   {FAQ_MORE_LABEL} <span aria-hidden className="ml-1">&#8599;</span>
                 </a>
               </div>

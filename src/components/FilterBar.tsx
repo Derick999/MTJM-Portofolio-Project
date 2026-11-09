@@ -12,12 +12,14 @@ interface Props {
   count: number;
   /** Di beranda kategori dipilih lewat tab, jadi dropdown kategori disembunyikan. */
   showCategory?: boolean;
+  /** Kelas grid kolom (bawaan 5 kolom di desktop; panel sempit memakai lebih sedikit). */
+  gridClass?: string;
 }
 
 const selectCls =
   "min-h-11 w-full rounded-lg border border-line bg-surface px-2 text-sm text-ink disabled:bg-surface-2 disabled:opacity-60";
 
-export function FilterBar({ projects, value, onChange, count, showCategory = true }: Props) {
+export function FilterBar({ projects, value, onChange, count, showCategory = true, gridClass = "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5" }: Props) {
   const opts = useMemo(() => filterOptions(projects, value), [projects, value]);
   const active = hasActiveFilters(value, !showCategory);
   // daftar kategori sama dengan tab; angka mengikuti filter lain, kategori kosong disembunyikan
@@ -29,7 +31,7 @@ export function FilterBar({ projects, value, onChange, count, showCategory = tru
 
   return (
     <form
-      className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5"
+      className={`grid gap-2 ${gridClass}`}
       aria-label="Filter proyek"
       onSubmit={(e) => e.preventDefault()}
     >

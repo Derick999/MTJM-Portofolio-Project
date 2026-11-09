@@ -99,7 +99,7 @@ export function filterProjects(projects: Project[], f: ServiceFilters): Project[
 }
 
 /** Jumlah proyek per sub-layanan dan per group (satu proyek dihitung sekali per group). Untuk badge. */
-export function serviceCounts(projects: Project[]): Map<string, number> {
+export function serviceCounts(projects: Pick<Project, "services">[]): Map<string, number> {
   const out = new Map<string, number>();
   for (const sv of SERVICES) out.set(sv.slug, projects.filter((p) => p.services.includes(sv.slug)).length);
   for (const g of GROUPS) out.set(g.slug, projects.filter((p) => matchesService(p, g.slug)).length);

@@ -8,11 +8,12 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [{ protocol: "https", hostname: "**.supabase.co" }],
   },
-  // Peta dan proyek kini menyatu di bagian Layanan beranda.
+  // Peta ada di halaman Cari Proyek. Link lama beranda berparameter (/?layanan=...) diarahkan ke /proyek (query ikut terbawa).
   async redirects() {
     return [
-      { source: "/peta", destination: "/#layanan", permanent: true },
-      { source: "/proyek", destination: "/#layanan", permanent: true },
+      { source: "/peta", destination: "/proyek", permanent: true },
+      { source: "/", has: [{ type: "query", key: "layanan" }], destination: "/proyek", permanent: true },
+      { source: "/", has: [{ type: "query", key: "p" }], destination: "/proyek", permanent: true },
     ];
   },
   turbopack: {

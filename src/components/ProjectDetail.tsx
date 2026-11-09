@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { CATEGORY_MAP } from "@/lib/categories";
 import { publicClient, publicText, realPhotos } from "@/lib/display";
+import { projectLabelColor, serviceLabels } from "@/lib/service-display";
 import { SITE } from "@/config/site";
+import { mainSiteHref } from "@/lib/links";
 import type { Project } from "@/lib/types";
 import { CategoryIcon } from "./CategoryIcon";
 import { ProjectPhoto } from "./ProjectPhoto";
@@ -19,7 +20,8 @@ export function ProjectDetail({ project, onClose }: { project: Project; onClose:
   useEffect(() => {
     onCloseRef.current = onClose;
   });
-  const cat = CATEGORY_MAP[project.category];
+  const cat = projectLabelColor(project);
+  const layanan = serviceLabels(project);
   const photos = realPhotos(project);
   const description = publicText(project.description);
   const scope = publicText(project.scope);
@@ -62,7 +64,7 @@ export function ProjectDetail({ project, onClose }: { project: Project; onClose:
     ["Klien", publicClient(project)],
     ["Tahun", String(project.year)],
     ["Lokasi", `${project.city}, ${project.province}`],
-    ["Kategori", cat.label],
+    [layanan.length > 1 ? "Layanan" : "Layanan", layanan.length ? layanan.join(", ") : cat.label],
   ];
 
   return (
@@ -150,7 +152,7 @@ export function ProjectDetail({ project, onClose }: { project: Project; onClose:
             </section>
           )}
           <a
-            href={SITE.url}
+            href={mainSiteHref("proyek")}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex min-h-11 items-center text-sm font-semibold text-accent underline-offset-4 hover:underline"

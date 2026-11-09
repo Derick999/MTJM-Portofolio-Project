@@ -1,6 +1,6 @@
 # Portofolio Proyek MTJM
 
-Website portofolio proyek PT Multi Tehnik Jaya Mandiri. Beranda berbentuk landing page (hero, angka, peta Indonesia interaktif dan proyek per kategori dengan 3D, FAQ, ajakan ke Main Website). Isi website mengikuti data di database; tampilan tetap. Admin menambah/mengubah proyek lewat `/admin`, dan hasilnya langsung tampil tanpa deploy ulang.
+Website portofolio proyek PT Multi Tehnik Jaya Mandiri. Beranda berbentuk landing page (hero, angka, kartu layanan, FAQ, ajakan ke Main Website). Peta Indonesia interaktif, ilustrasi 3D, dan daftar proyek ada di halaman **Cari Proyek** (`/proyek`). Isi website mengikuti data di database; tampilan tetap. Admin menambah/mengubah proyek lewat `/admin`, dan hasilnya langsung tampil tanpa deploy ulang.
 
 Stack: Next.js (App Router) + TypeScript + Tailwind, React Three Fiber (3D), Leaflet + OpenStreetMap (peta, tanpa API key), Supabase (database, foto, login), Vercel (hosting).
 
@@ -33,7 +33,7 @@ Salin `.env.example` menjadi `.env.local`:
 | `NEXT_PUBLIC_SUPABASE_URL` | URL project Supabase |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | anon key (aman dipublikasikan, dibatasi RLS) |
 | `NEXT_PUBLIC_SITE_URL` | alamat situs final (untuk Open Graph) |
-| `NEXT_PUBLIC_COMPANY_URL` / `_ADDRESS` / `_EMAIL` / `_PHONE` | isi footer |
+| `NEXT_PUBLIC_COMPANY_URL` / `_CONTACT_URL` | alamat web utama dan halaman Contact-nya (tujuan semua tautan ke web utama, diberi UTM) |
 
 Jangan pernah memakai `service_role` key di project ini.
 
@@ -72,7 +72,7 @@ Kompres foto hero (sekitar 200 KB, lebar 1920 px) supaya halaman cepat dimuat.
 ## Mengubah isi beranda
 
 - **Headline, subjudul, tombol hero, menu, blok angka ("Dipercaya industri sejak ...", "Sejak 2012"):** `src/config/site.ts`.
-- **FAQ:** `src/config/faq.ts` (pertanyaan, jawaban 2-3 kalimat; `{phone}` dan `{email}` diambil dari site.ts). Isi awal hanyalah CONTOH: konfirmasi ke MTJM sebelum publikasi. Data terstruktur FAQPage dibuat otomatis dari file ini.
+- **FAQ:** `src/config/faq.ts` (pertanyaan, jawaban 2-3 kalimat; item `contact: true` menautkan `SITE.contactUrl`). Isi awal hanyalah CONTOH: konfirmasi ke MTJM sebelum publikasi. Data terstruktur FAQPage dibuat otomatis dari file ini.
 - **Layanan:** `src/config/services.ts` (8 group, 27 sub-layanan). Migrasi `supabase/migrations/004_services.sql` menambah kolom `services` pada proyek.
 
 ## Panduan singkat untuk admin MTJM
@@ -96,11 +96,12 @@ Kompres foto hero (sekitar 200 KB, lebar 1920 px) supaya halaman cepat dimuat.
 ## Struktur folder
 
 ```
-src/app            halaman: / (beranda), /admin, /admin/proyek/[id]  (/peta dan /proyek dialihkan ke /#layanan)
+src/app            halaman: / (beranda), /proyek (cari proyek: filter + 3D + peta + daftar), /admin, /admin/proyek/[id]
+                   (/peta dialihkan ke /proyek; /?layanan=... dan /?p=... ke /proyek dengan query yang sama)
 src/components     UI; models/ = model 3D per kategori (prims.tsx = bahan dasar)
 src/lib            kategori, filter, data provinsi->kota (indonesia.ts), Supabase, kompresi foto
 src/config/site.ts  semua teks & data perusahaan (menu, hero, CTA, kontak, angka awal)
-src/components/home  Hero, FAQ, Dashboard (peta + kategori), CTA
+src/components/home  Hero, kartu layanan (server), FAQ, CTA; src/components/proyek = halaman Cari Proyek
 src/data/seed.ts   data contoh (sumber untuk supabase/seed.sql)
 supabase/          migrasi SQL + seed
 ```
@@ -108,9 +109,9 @@ supabase/          migrasi SQL + seed
 ## Menyesuaikan
 
 - **Warna & font:** token di `src/app/globals.css` (`@theme`). Tema biru-putih mengikuti logo (biru #1887cd, cyan #1dc7f4) dan navy #14144a; font Poppins dimuat di `src/app/layout.tsx`. Warna kategori ada di `src/lib/categories.ts`.
-- **Teks & data perusahaan:** `src/config/site.ts` (menu, hero, CTA, footer, alamat/telepon/email). Alamat/telepon/email juga bisa ditimpa lewat environment variable.
+- **Teks & data perusahaan:** `src/config/site.ts` (menu, hero, angka, CTA, `contactUrl`, `utm`). Tidak ada footer terpisah: penutup halaman = bagian ajakan (`CtaSection`) dengan logo dan copyright. Semua tautan ke web utama dibuat lewat `mainSiteHref()` (`src/lib/links.ts`) yang menambah `utm_source`, `utm_medium`, `utm_campaign`, dan `utm_content` (hero, cta, faq, nav, proyek).
 - **Company Profile:** taruh file PDF di `public/company-profile.pdf` maka tautan "Unduh Company Profile" muncul otomatis di bagian CTA (dicek saat build, jadi deploy ulang setelah menambah file). Nama file diatur di `site.ts`.
-- **Logo:** `public/mtjm-logo.jpg` (header, footer). Favicon dibuat dari `src/app/icon.png` dan `apple-icon.png`; gambar preview link `public/og.png` (1200x630).
+- **Logo:** `public/mtjm-logo.jpg` (header, penutup halaman). Favicon dibuat dari `src/app/icon.png` dan `apple-icon.png`; gambar preview link `public/og.png` (1200x630).
 - **Batas provinsi di peta:** `public/geo/indonesia-provinces.json`, dibuat ulang dengan `node scripts/build-geo.mjs <file.geojson>`. Papua Selatan/Tengah/Pegunungan memakai batas Papua, dan Papua Barat Daya memakai batas Papua Barat (sumber data masih 34 provinsi).
 - **Kota baru:** tambah baris di `src/lib/indonesia.ts` (format `[nama, lat, lng]`).
 - **Data awal:** ubah `src/data/seed.ts`, lalu `npm run seed:sql` untuk membuat ulang `supabase/seed.sql`.

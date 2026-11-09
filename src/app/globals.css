@@ -26,7 +26,8 @@
 html {
   color-scheme: light;
   scroll-behavior: smooth;
-  scroll-padding-top: 5rem;
+  /* anchor (#layanan, #faq) tidak tertutup navbar: tinggi navbar diset SiteHeader lewat --header-h */
+  scroll-padding-top: calc(var(--header-h, 4rem) + 0.75rem);
 }
 
 body {

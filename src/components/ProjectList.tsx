@@ -1,6 +1,6 @@
-import { CATEGORY_MAP } from "@/lib/categories";
 import type { Project } from "@/lib/types";
 import { publicClient, realPhotos } from "@/lib/display";
+import { projectLabelColor } from "@/lib/service-display";
 import { CategoryIcon } from "./CategoryIcon";
 import { ProjectPhoto } from "./ProjectPhoto";
 
@@ -10,11 +10,13 @@ interface Props {
   error?: string | null;
   /** Tampilkan label kategori (dipakai di tab "Semua"). */
   showCategory?: boolean;
+  /** Tata letak grid beberapa kolom (halaman pencarian), bukan satu kolom. */
+  grid?: boolean;
   /** Isi pesan saat tidak ada hasil (menyesuaikan filter yang aktif). */
   emptyMessage?: React.ReactNode;
 }
 
-export function ProjectList({ projects, onSelect, error, showCategory = false, emptyMessage }: Props) {
+export function ProjectList({ projects, onSelect, error, showCategory = false, grid = false, emptyMessage }: Props) {
   if (error) return <p className="rounded border border-danger/50 bg-danger/10 p-4 text-sm">{error}</p>;
 
   if (!projects) {
@@ -36,9 +38,10 @@ export function ProjectList({ projects, onSelect, error, showCategory = false, e
   }
 
   return (
-    <ul className="space-y-3">
+    <ul className={grid ? "grid gap-3 md:grid-cols-2 xl:grid-cols-3" : "space-y-3"}>
       {projects.map((p) => {
         const photo = realPhotos(p)[0];
+        const sd = projectLabelColor(p);
         return (
         <li key={p.id}>
           <button
@@ -53,7 +56,7 @@ export function ProjectList({ projects, onSelect, error, showCategory = false, e
             ) : (
               <span
                 className="grid h-20 w-20 shrink-0 place-items-center rounded"
-                style={{ color: CATEGORY_MAP[p.category].color, background: `${CATEGORY_MAP[p.category].color}1a` }}
+                style={{ color: sd.color, background: `${sd.color}1a` }}
               >
                 <CategoryIcon category={p.category} className="h-10 w-10" />
               </span>
@@ -63,12 +66,12 @@ export function ProjectList({ projects, onSelect, error, showCategory = false, e
                 {p.name}
               </span>
               {showCategory && (
-                <span className="block text-xs font-semibold uppercase tracking-wide" style={{ color: CATEGORY_MAP[p.category].color }}>
-                  {CATEGORY_MAP[p.category].label}
+                <span className="block text-xs font-semibold uppercase tracking-wide" style={{ color: sd.color }}>
+                  {sd.label}
                 </span>
               )}
               {(publicClient(p) || !showCategory) && (
-                <span className="block truncate text-sm text-muted">{publicClient(p) || CATEGORY_MAP[p.category].label}</span>
+                <span className="block truncate text-sm text-muted">{publicClient(p) || sd.label}</span>
               )}
               <span className="mt-1 flex flex-wrap gap-x-3 text-xs text-muted">
                 <span>{p.year}</span>

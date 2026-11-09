@@ -1,5 +1,4 @@
 // Semua teks & data perusahaan di satu tempat. Ubah di sini, bukan di komponen.
-// Alamat/telepon/email bisa ditimpa lewat environment variable (lihat .env.example).
 export const SITE = {
   name: "PT Multi Tehnik Jaya Mandiri",
   short: "MTJM",
@@ -9,16 +8,23 @@ export const SITE = {
   urlLabel: "pt-mtjm.co.id",
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
   logo: { src: "/mtjm-logo.jpg", width: 738, height: 225 },
-  address: process.env.NEXT_PUBLIC_COMPANY_ADDRESS || "Jl. Bumur I No. 72, Kranggan, Bekasi",
-  email: process.env.NEXT_PUBLIC_COMPANY_EMAIL || "poltak.sinaga@pt-mtjm.co.id",
-  phone: process.env.NEXT_PUBLIC_COMPANY_PHONE || "+62 811 8702 119",
+  /**
+   * Halaman Contact di web utama (tujuan jawaban FAQ "cara berdiskusi / meminta penawaran").
+   * TODO: ganti ke URL halaman Contact yang sebenarnya, mis. "https://pt-mtjm.co.id/contact".
+   */
+  contactUrl: process.env.NEXT_PUBLIC_COMPANY_CONTACT_URL || process.env.NEXT_PUBLIC_COMPANY_URL || "https://pt-mtjm.co.id",
+  /** Parameter pelacak (UTM) untuk SEMUA tautan ke web utama; dibuat lewat mainSiteHref() di src/lib/links.ts. */
+  utm: { source: "portofolio", medium: "web", campaign: "proyek" },
 
+  /** Menu navbar (diikuti tombol Main Website). */
   nav: [
     { href: "/", label: "Beranda" },
     { href: "/#layanan", label: "Layanan" },
+    { href: "/proyek", label: "Peta & Proyek" },
     { href: "/#faq", label: "FAQ" },
-  ],
+  ] as { href: string; label: string }[],
   mainSiteButton: "Main Website",
+  backToTop: "Kembali ke atas",
 
   /** Tampilkan nama klien ke publik? Matikan sampai MTJM memberi izin; nama klien tetap tersimpan dan terlihat di admin. */
   showClientNames: false,
@@ -27,13 +33,18 @@ export const SITE = {
     eyebrow: "Your Technical Partner",
     title: "Setiap proyek punya tempat di peta.",
     text: "Riwayat proyek PT Multi Tehnik Jaya Mandiri di seluruh Indonesia, dari pembangkit sampai pengolahan air.",
-    primary: { label: "Jelajahi Layanan", href: "#layanan" },
+    primary: { label: "Lihat Peta & Proyek", href: "/proyek" },
   },
 
-  /** Blok angka di bawah hero (di samping headline pendek). "Sejak" tampil tanpa animasi. KONFIRMASI tahun ke MTJM sebelum publikasi. */
+  /** Judul blok angka di bawah hero. KONFIRMASI tahun ke MTJM sebelum publikasi. */
   statsBlock: {
-    headline: "Dipercaya industri sejak 2012",
-    since: { value: "2012", label: "Sejak" },
+    headline: "Rekam jejak kami sejak 2012",
+  },
+
+  /** Halaman Peta & Proyek (/proyek): keterangan di bawah judul dan tautan kecil ke daftar lengkap di web utama. */
+  searchPage: {
+    note: "Menampilkan proyek pilihan kami",
+    moreLabel: "Daftar pengalaman lengkap di pt-mtjm.co.id",
   },
 
   /** Nilai awal angka statistik (dipakai bila database belum terhubung). Diubah admin lewat /admin. */

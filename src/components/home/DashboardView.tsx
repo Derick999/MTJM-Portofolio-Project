@@ -43,6 +43,7 @@ export interface DashboardViewProps {
   panelBody?: ReactNode;
 }
 
+// CATATAN: beranda web kini memakai ServiceExplorer; komponen ini tinggal dipakai video promosi (video/src/web), jadi jangan dihapus.
 /**
  * Tampilan dashboard beranda (bagian peta + proyek per kategori) tanpa state. Dipakai bersama oleh web (Dashboard.tsx)
  * dan video promosi (video/src/web), supaya tampilannya identik.

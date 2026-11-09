@@ -1,11 +1,14 @@
 // Isi FAQ beranda. CONTOH: konfirmasi ke MTJM sebelum publikasi. Jangan menambah klaim di luar daftar ini.
-// `{phone}` dan `{email}` diganti otomatis dari src/config/site.ts. Setiap jawaban diakhiri tautan "Selengkapnya" ke website utama.
+// Setiap jawaban diakhiri tautan "Selengkapnya" ke website utama; item `contact: true` juga menautkan halaman Contact (SITE.contactUrl).
 export const FAQ_TITLE = "Pertanyaan yang Sering Diajukan";
 export const FAQ_MORE_LABEL = "Selengkapnya di pt-mtjm.co.id";
+export const FAQ_CONTACT_LABEL = "Buka halaman Contact";
 
 export interface FaqItem {
   q: string;
   a: string;
+  /** Tampilkan tautan ke halaman Contact di web utama. */
+  contact?: boolean;
 }
 
 export const FAQ: FaqItem[] = [
@@ -27,7 +30,8 @@ export const FAQ: FaqItem[] = [
   },
   {
     q: "Bagaimana cara berdiskusi atau meminta penawaran?",
-    a: "Hubungi MTJM lewat telepon {phone} atau email {email}, atau kunjungi website resmi.",
+    a: "Silakan hubungi MTJM lewat halaman Contact di website resmi untuk berdiskusi atau meminta penawaran.",
+    contact: true,
   },
   {
     q: "Apakah semua proyek ada di halaman ini?",

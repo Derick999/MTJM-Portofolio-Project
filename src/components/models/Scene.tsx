@@ -44,7 +44,6 @@ export default function Scene({ category }: { category: CategoryId }) {
 
   return (
     <Canvas
-        key={category}
         frameloop={weak ? "demand" : "always"}
         dpr={weak ? 1 : [1, 1.75]}
         camera={{ position: [9, 5.5, 10.5], fov: 36, near: 0.1, far: 200 }}
@@ -72,7 +71,7 @@ export default function Scene({ category }: { category: CategoryId }) {
           fadeStrength={1.5}
           infiniteGrid
         />
-        <ContactShadows position={[0, 0.01, 0]} scale={view.groundScale} blur={2.6} opacity={0.35} far={6} frames={weak ? 1 : 60} resolution={512} />
+        <ContactShadows key={category} position={[0, 0.01, 0]} scale={view.groundScale} blur={2.6} opacity={0.35} far={6} frames={weak ? 1 : 60} resolution={512} />
         <OrbitControls
           target={target}
           enableDamping

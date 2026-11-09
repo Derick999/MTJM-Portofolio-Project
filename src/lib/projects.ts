@@ -3,23 +3,9 @@
 import { useEffect, useState } from "react";
 import { seedProjects } from "@/data/seed";
 import { seedCategoryProjects } from "@/data/seed-categories";
-import { legacyToServices } from "@/config/services";
 import { getSupabase } from "./supabase";
+import { fromRow, PROJECT_SELECT, type ProjectRow } from "./project-rows";
 import type { Project } from "./types";
-
-interface Row extends Omit<Project, "photos"> {
-  project_photos: { url: string; sort_order: number }[] | null;
-}
-
-function fromRow(r: Row): Project {
-  const { project_photos, ...rest } = r;
-  return {
-    ...rest,
-    // proyek yang belum di-backfill (migrasi 004 belum dijalankan) memakai tebakan dari category lama
-    services: rest.services?.length ? rest.services : legacyToServices(rest.category, rest.name),
-    photos: (project_photos ?? []).sort((a, b) => a.sort_order - b.sort_order).map((p) => p.url),
-  };
-}
 
 /** Ambil proyek. Publik hanya melihat yang published (dijaga RLS); admin melihat semuanya. */
 export async function fetchProjects(): Promise<Project[]> {
@@ -27,11 +13,11 @@ export async function fetchProjects(): Promise<Project[]> {
   if (!sb) return [...seedProjects(), ...seedCategoryProjects()];
   const { data, error } = await sb
     .from("projects")
-    .select("*, project_photos(url, sort_order)")
+    .select(PROJECT_SELECT)
     .order("year", { ascending: false })
     .order("created_at", { ascending: false });
   if (error) throw error;
-  return (data as Row[]).map(fromRow);
+  return (data as ProjectRow[]).map(fromRow);
 }
 
 // Hook publik berbagi satu permintaan (hero dan penjelajah tidak mengambil data dua kali). Admin memakai fetchProjects langsung.
@@ -42,11 +28,13 @@ function fetchPublicOnce(): Promise<Project[]> {
   return publicCache;
 }
 
-export function usePublicProjects() {
-  const [projects, setProjects] = useState<Project[] | null>(null);
+/** Proyek published. `initial` = data dari server (tanpa permintaan lagi); null/undefined = ambil sendiri di klien. */
+export function usePublicProjects(initial?: Project[] | null) {
+  const [projects, setProjects] = useState<Project[] | null>(initial ?? null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (initial) return;
     let alive = true;
     fetchPublicOnce()
       .then((all) => alive && setProjects(all))
@@ -54,7 +42,7 @@ export function usePublicProjects() {
     return () => {
       alive = false;
     };
-  }, []);
+  }, [initial]);
 
   return { projects, error };
 }

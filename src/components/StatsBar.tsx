@@ -66,27 +66,20 @@ function Counter({ to, loading }: { to: number; loading: boolean }) {
 
 export function StatsBar({ initial, serverOk }: { initial?: SiteStat[]; serverOk?: boolean }) {
   const { stats, loading } = useSiteStats(initial, serverOk);
-  const { headline, since } = SITE.statsBlock;
-  const cell = "flex flex-col rounded-2xl border border-line bg-surface px-3 py-5 text-center shadow-sm sm:px-5 sm:py-6";
+  const { headline } = SITE.statsBlock;
   return (
     <section aria-label="Angka perusahaan" className="mx-auto mt-12 max-w-7xl px-4">
-      <div className="grid items-center gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2.2fr)] lg:gap-10">
-        <h2 className="text-2xl font-bold leading-tight sm:text-3xl">{headline}</h2>
-        <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-          {stats.map((s) => (
-            <div key={s.key} className={cell}>
-              <dt className="order-2 mt-1 text-sm font-medium leading-tight text-muted">{s.label}</dt>
-              <dd className="text-3xl font-bold text-accent sm:text-4xl">
-                <Counter to={s.value} loading={loading} />
-              </dd>
-            </div>
-          ))}
-          <div className={cell}>
-            <dt className="order-2 mt-1 text-sm font-medium leading-tight text-muted">{since.label}</dt>
-            <dd className="text-3xl font-bold text-accent sm:text-4xl">{since.value}</dd>
+      <h2 className="text-2xl font-bold leading-tight sm:text-3xl">{headline}</h2>
+      <dl className="mt-5 grid grid-cols-3 gap-2 sm:gap-4">
+        {stats.map((s) => (
+          <div key={s.key} className="flex flex-col rounded-2xl border border-line bg-surface px-2 py-4 text-center shadow-sm sm:px-6 sm:py-6">
+            <dt className="order-2 mt-1 text-xs font-medium leading-tight text-muted sm:text-base">{s.label}</dt>
+            <dd className="text-3xl font-bold text-accent sm:text-5xl">
+              <Counter to={s.value} loading={loading} />
+            </dd>
           </div>
-        </dl>
-      </div>
+        ))}
+      </dl>
     </section>
   );
 }

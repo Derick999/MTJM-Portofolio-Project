@@ -5,7 +5,7 @@ import type * as Leaflet from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
-import { CATEGORY_MAP } from "@/lib/categories";
+import { projectLabelColor } from "@/lib/service-display";
 import { INDONESIA_BOUNDS } from "@/lib/indonesia";
 import type { Project } from "@/lib/types";
 
@@ -94,7 +94,7 @@ export default function MapView({ projects, provinceFilter, point, onPoint, onPr
     const { projects, fitToResults } = latest.current;
     s.cluster.clearLayers();
     const layers = projects.map((p) => {
-      const color = CATEGORY_MAP[p.category].color;
+      const color = projectLabelColor(p).color; // warna group layanan utama
       // Area klik 44x44 px (nyaman untuk jari); titik berwarna tetap 18 px.
       const icon = s.L.divIcon({
         className: "",

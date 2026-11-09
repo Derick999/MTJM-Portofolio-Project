@@ -1,6 +1,9 @@
 import Image from "next/image";
+import Link from "next/link";
 import { SITE } from "@/config/site";
+import { mainSiteHref } from "@/lib/links";
 import { heroImage } from "@/lib/placeholders";
+import type { LatestProject } from "@/lib/home-server";
 import { HeroLatest } from "./HeroLatest";
 import { IndonesiaDots } from "./IndonesiaDots";
 
@@ -8,7 +11,7 @@ import { IndonesiaDots } from "./IndonesiaDots";
  * Hero: headline besar, dua tombol pil, latar foto (public/placeholder/hero.jpg, lihat src/config/images.ts) dengan overlay navy;
  * tanpa foto: gradasi navy-biru + pola titik peta Indonesia. Tidak ada peta atau 3D di sini.
  */
-export function Hero() {
+export function Hero({ latest }: { latest: LatestProject[] }) {
   const { hero } = SITE;
   const bg = heroImage();
   return (
@@ -26,15 +29,15 @@ export function Hero() {
         <h1 className="mt-3 max-w-3xl text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">{hero.title}</h1>
         <p className="mt-4 max-w-2xl text-base leading-relaxed text-white/85 sm:text-lg">{hero.text}</p>
         <div className="mt-8 flex flex-wrap gap-3">
-          <a href={hero.primary.href} className="btn btn-white !px-7 !py-3 text-base">
+          <Link href={hero.primary.href} className="btn btn-white !px-7 !py-3 text-base">
             {hero.primary.label}
-          </a>
-          <a href={SITE.url} target="_blank" rel="noopener noreferrer" className="btn btn-ghost-white !px-7 !py-3 text-base">
+          </Link>
+          <a href={mainSiteHref("hero")} target="_blank" rel="noopener noreferrer" className="btn btn-ghost-white !px-7 !py-3 text-base">
             {SITE.mainSiteButton} <span aria-hidden>&#8599;</span>
           </a>
         </div>
       </div>
-      <HeroLatest />
+      <HeroLatest latest={latest} />
     </section>
   );
 }
